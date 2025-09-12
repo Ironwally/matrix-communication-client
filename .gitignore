@@ -4,3 +4,7 @@
 target
 .flattened-pom.xml
 dependency-reduced-pom.xml
+
+local-repo/
+local-maven-repo/
+.vscode/

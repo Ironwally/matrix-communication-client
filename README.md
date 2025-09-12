@@ -68,3 +68,44 @@ public class Example {
   <version>${matrix-communication-client.version}</version>
 </dependency>
 ```
+
+# Publishing
+
+## Local publish
+1. Version:
+- ongoing developement: keep `x.y.z-SNAPSHOT`
+- For release version: remove `-SNAPSHOT` -> `x.y.z`
+- After release: bump to next snapshot: add `-SNAPSHOT` 
+  - Version bumping Scheme:
+    - (Patch release) x.y.*z+*: backward-compatible fixes: bugs/security/performance/reliability/stability/misleading API behavior/doc corrections that prevent user errors
+    - (Minor release) x.*y+*.z: backward-compatible features or deprecations
+    - (Major release) *x+*.y.z: API breaking/behavior breaking changes
+
+2. Build (runs tests) and deploy to a local file repository:
+
+  Windows PowerShell (script):
+  ```powershell
+  ./release-local.ps1
+  ```
+  macOS / Linux:
+  ```bash
+  ./release-local.sh
+  ```
+
+3. Add this repository to another project's `pom.xml` to consume the artifact:
+   ```xml
+   <repositories>
+     <repository>
+       <id>local-repo</id>
+       <url>file:///${project.basedir}/relative/path/to/this/project/local-repo</url>
+       <snapshots><enabled>true</enabled></snapshots>
+       <releases><enabled>true</enabled></releases>
+     </repository>
+   </repositories>
+   <dependency>
+     <groupId>io.github.ironwally</groupId>
+     <artifactId>matrix-communication-client-fork</artifactId>
+     <version>1.10-SNAPSHOT</version>
+   </dependency>
+   ```
+
