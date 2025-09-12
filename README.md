@@ -61,16 +61,10 @@ public class Example {
 
 # Dependency
 
-```xml
-<dependency>
-  <groupId>com.cosium.matrix_communication_client</groupId>
-  <artifactId>matrix-communication-client</artifactId>
-  <version>${matrix-communication-client.version}</version>
-</dependency>
-```
+Local only currently. 
+See [Local publish](#local-publish) on how to include.
 
 # Publishing
-
 ## Local publish
 1. Version:
 - ongoing developement: keep `x.y.z-SNAPSHOT`
