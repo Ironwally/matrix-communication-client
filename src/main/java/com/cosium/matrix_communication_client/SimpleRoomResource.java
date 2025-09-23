@@ -3,6 +3,7 @@ package com.cosium.matrix_communication_client;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 
+import com.cosium.matrix_communication_client.message.Message;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**

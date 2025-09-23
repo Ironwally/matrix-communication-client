@@ -1,5 +1,7 @@
 package com.cosium.matrix_communication_client;
 
+import com.cosium.matrix_communication_client.message.Message;
+
 /**
  * @author Réda Housni Alaoui
  */

@@ -62,7 +62,7 @@ public class Example {
 # Dependency
 
 Local only currently. 
-See [Local publish](#local-publish) on how to include.
+See [Local publish 3.](#local-publish-3) on how to include.
 
 # Publishing
 ## Local publish
@@ -86,6 +86,7 @@ See [Local publish](#local-publish) on how to include.
   ./release-local.sh
   ```
 
+<a id="local-publish-3"></a>
 3. Add this repository to another project's `pom.xml` to consume the artifact:
    ```xml
    <repositories>

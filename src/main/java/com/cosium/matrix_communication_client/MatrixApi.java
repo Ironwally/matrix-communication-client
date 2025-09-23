@@ -2,6 +2,7 @@ package com.cosium.matrix_communication_client;
 
 import static java.util.Objects.requireNonNull;
 
+import com.cosium.matrix_communication_client.message.Message;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
