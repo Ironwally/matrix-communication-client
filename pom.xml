@@ -111,6 +111,16 @@
                         <version>${git-code-format-maven-plugin.version}</version>
                     </dependency>
                 </dependencies>
+                <configuration>
+                    <formatterOptions>
+                    <!-- Don't format Methods -->
+                    <googleJavaFormat.fixImportsOnly>true</googleJavaFormat.fixImportsOnly>
+                    <googleJavaFormat.skipSortingImports>false</googleJavaFormat.skipSortingImports>
+                    <googleJavaFormat.skipRemovingUnusedImports>false</googleJavaFormat.skipRemovingUnusedImports>
+                    <!-- Avoid unexpected Javadoc reflow -->
+                    <googleJavaFormat.formatJavadoc>false</googleJavaFormat.formatJavadoc>
+                    </formatterOptions>
+                </configuration>
             </plugin>
         </plugins>
     </build>

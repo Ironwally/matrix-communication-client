@@ -13,39 +13,11 @@ public class MessageText extends Message {
       this.type = "m.text";
     }
 
-    @Override
-    public Builder body(String body) {
-      super.body(body);
-      return this;
-    }
-
-    @Override
-    public Builder format(String format) {
-      super.format(format);
-      return this;
-    }
-
-    @Override
-    public Builder formattedBody(String formattedBody) {
-      super.formattedBody(formattedBody);
-      return this;
-    }
-
-    @Override
-    public Builder timestamp(long timestamp) {
-      super.timestamp(timestamp);
-      return this;
-    }
-
-    @Override
-    public Builder id(long id) {
-      super.id(id);
-      return this;
-    }
-
-    @Override
-    public MessageText build() {
-      return new MessageText(this);
-    }
+    @Override public Builder body(String body) { super.body(body); return this; }
+    @Override public Builder format(String format) { super.format(format); return this; }
+    @Override public Builder formattedBody(String formattedBody) { super.formattedBody(formattedBody); return this; }
+    @Override public Builder timestamp(long timestamp) { super.timestamp(timestamp); return this; }
+    @Override public Builder id(long id) { super.id(id); return this; }
+    @Override public MessageText build() { return new MessageText(this); }
   }
 }

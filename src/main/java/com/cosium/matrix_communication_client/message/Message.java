@@ -41,49 +41,22 @@ public class Message {
     this.id = id == null ? 0L : id;
   }
 
-  @JsonProperty("body")
-  public String body() {
-    return body();
-  }
+  @JsonProperty("body") public String body() { return body; }
+  @JsonProperty("format") public String format() { return format; }
+  @JsonProperty("formatted_body") public String formattedBody() { return formattedBody; }
+  @JsonProperty("msgtype") public String type() { return type; }
+  @JsonProperty("timestamp") public long timestamp() { return timestamp; }
+  @JsonProperty("id") public long id() { return id; }
+  @Override public int hashCode() { return Objects.hash(body, format, formattedBody, type, timestamp, id); }
 
-  @JsonProperty("format")
-  public String format() {
-    return format();
-  }
-
-  @JsonProperty("formatted_body")
-  public String formattedBody() {
-    return formattedBody();
-  }
-
-  @JsonProperty("msgtype")
-  public String type() {
-    return type();
-  }
-
-  @JsonProperty("timestamp")
-  public long timestamp() {
-    return timestamp();
-  }
-
-  @JsonProperty("id")
-  public long id() {
-    return id();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(body, format, formattedBody, type, timestamp, id);
-  }
-
-  public static Builder builder() {
-    return new Builder();
+  public static Builder builder() { 
+    return new Builder(); 
   }
 
   public static class Builder {
     protected String body;
     protected String format;
-    protected String formattedBody;
+    protected String formattedBody; 
     protected String type;
     protected long timestamp;
     protected long id;
@@ -102,63 +75,20 @@ public class Message {
       this.type = base.type;
     }
 
-    public Builder body(String body) {
-      this.body = body;
-      return this;
-    }
-
-    public Builder format(String format) {
-      this.format = format;
-      return this;
-    }
-
-    public Builder formattedBody(String formattedBody) {
-      this.formattedBody = formattedBody;
-      return this;
-    }
-
-    public Builder type(String type) {
-      this.type = type;
-      return this;
-    }
-
-    public Builder timestamp(long timestamp) {
-      this.timestamp = timestamp;
-      return this;
-    }
-
-    public Builder id(long id) {
-      this.id = id;
-      return this;
-    }
-
-    public Message build() {
-      return new Message(this);
-    }
+    public Builder body(String body) { this.body = body; return this; }
+    public Builder format(String format) { this.format = format; return this; }
+    public Builder formattedBody(String formattedBody) { this.formattedBody = formattedBody; return this; }
+    public Builder type(String type) { this.type = type; return this; }
+    public Builder timestamp(long timestamp) { this.timestamp = timestamp; return this; }
+    public Builder id(long id) { this.id = id; return this; }
+    public Message build() { return new Message(this); }
 
     // New methods. First decide which type of message
-    public MessageText.Builder text(String content) {
-      return new MessageText.Builder(this).body(content);
-    }
-
-    public MessageImage.Builder image(String content, String url) {
-      return new MessageImage.Builder(this).body(content).url(url);
-    }
-
-    public MessageFile.Builder file(String content, String url) {
-      return new MessageFile.Builder(this).body(content).url(url);
-    }
-
-    public MessageAudio.Builder audio(String content, String url) {
-      return new MessageAudio.Builder(this).body(content).url(url);
-    }
-
-    public MessageEmote.Builder sticker(String content) {
-      return new MessageEmote.Builder(this).body(content);
-    }
-
-    public MessagePoll.Builder poll(String question, String[] answers) {
-      return new MessagePoll.Builder(this).question(question).answers(answers);
-    }
+    public MessageText.Builder text(String content) { return new MessageText.Builder(this).body(content); }
+    public MessageImage.Builder image(String content, String url) { return new MessageImage.Builder(this).body(content).url(url); }
+    public MessageFile.Builder file(String content, String url) { return new MessageFile.Builder(this).body(content).url(url); }
+    public MessageAudio.Builder audio(String content, String url) { return new MessageAudio.Builder(this).body(content).url(url); }
+    public MessageEmote.Builder sticker(String content) { return new MessageEmote.Builder(this).body(content); }
+    public MessagePoll.Builder poll(String question, String[] answers) { return new MessagePoll.Builder(this).question(question).answers(answers); }
   }
 }

@@ -1,6 +1,9 @@
 package com.cosium.matrix_communication_client.message;
 
-/** Matrix m.image message */
+/** Matrix m.image message 
+ * If the filename is present, and its value is different than body, then body is considered to be a caption, 
+ * otherwise body is a filename. format and formatted_body are only used for captions.
+*/
 public class MessageImage extends Message {
 
   private final String url; // mxc:// URI or http fallback
@@ -14,17 +17,9 @@ public class MessageImage extends Message {
     this.info = builder.info;
   }
 
-  public String url() {
-    return url;
-  }
-
-  public String filename() {
-    return filename;
-  }
-
-  public ImageInfo info() {
-    return info;
-  }
+  public String url() { return url; }
+  public String filename() { return filename; }
+  public ImageInfo info() { return info; }
 
   public static final class Builder extends Message.Builder {
 
@@ -48,40 +43,12 @@ public class MessageImage extends Message {
     }
 
     // caption for image
-    @Override
-    public Builder body(String body) {
-      super.body(body);
-      return this;
-    }
-
-    @Override
-    public Builder format(String format) {
-      super.format(format);
-      return this;
-    }
-
-    @Override
-    public Builder formattedBody(String formattedBody) {
-      super.formattedBody(formattedBody);
-      return this;
-    }
-
-    @Override
-    public Builder timestamp(long timestamp) {
-      super.timestamp(timestamp);
-      return this;
-    }
-
-    @Override
-    public Builder id(long id) {
-      super.id(id);
-      return this;
-    }
-
-    @Override
-    public MessageImage build() {
-      return new MessageImage(this);
-    }
+    @Override public Builder body(String body) { super.body(body); return this; }
+    @Override public Builder format(String format) { super.format(format); return this; }
+    @Override public Builder formattedBody(String formattedBody) { super.formattedBody(formattedBody); return this; }
+    @Override public Builder timestamp(long timestamp) { super.timestamp(timestamp); return this; }
+    @Override public Builder id(long id) { super.id(id); return this; }
+    @Override public MessageImage build() { return new MessageImage(this); }
   }
 
   public static class ImageInfo {
