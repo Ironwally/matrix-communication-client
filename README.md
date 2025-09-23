@@ -104,3 +104,30 @@ See [Local publish 3.](#local-publish-3) on how to include.
    </dependency>
    ```
 
+   Gradle (Groovy DSL):
+
+   ```groovy
+   // build.gradle
+   repositories {
+     maven { url = uri("${rootDir}/relative/path/to/this/project/local-repo") }
+   }
+
+   dependencies {
+     implementation("io.github.ironwally:matrix-communication-client-fork:1.10-SNAPSHOT")
+   }
+   ```
+
+   Gradle (Kotlin DSL):
+
+   ```kotlin
+   // build.gradle.kts
+   repositories {
+     maven { url = uri("${'$'}{rootDir}/relative/path/to/this/project/local-repo") }
+   }
+
+   dependencies {
+     implementation("io.github.ironwally:matrix-communication-client-fork:1.10-SNAPSHOT")
+   }
+   ```
+
+
