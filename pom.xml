@@ -7,7 +7,7 @@
     </parent>
     <groupId>io.github.ironwally</groupId>
     <artifactId>matrix-communication-client-fork</artifactId>
-    <version>1.10-SNAPSHOT</version>
+    <version>1.11-SNAPSHOT</version>
     <name>matrix-communication-client-fork</name>
 
     <properties>
@@ -117,7 +117,7 @@
                     <googleJavaFormat.fixImportsOnly>true</googleJavaFormat.fixImportsOnly>
                     <googleJavaFormat.skipSortingImports>false</googleJavaFormat.skipSortingImports>
                     <googleJavaFormat.skipRemovingUnusedImports>false</googleJavaFormat.skipRemovingUnusedImports>
-                    <!-- Avoid unexpected Javadoc reflow -->
+                    <!-- Avoid Javadoc reflow -->
                     <googleJavaFormat.formatJavadoc>false</googleJavaFormat.formatJavadoc>
                     </formatterOptions>
                 </configuration>
