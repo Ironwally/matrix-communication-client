@@ -1,5 +1,6 @@
 #!/usr/bin/env pwsh
 $ErrorActionPreference = 'Stop'
-# Run tests and publish local to ./local-repo
-./mvnw.cmd clean deploy -DaltDeploymentRepository=local::default::file:./local-repo;
-Write-Host "Published to $(Resolve-Path ./local-repo)" -ForegroundColor Green
+
+# Build, run tests, attach sources/javadocs, and install to local Maven repo
+./mvnw.cmd clean source:jar-no-fork javadoc:jar install -Dgcf.skip=true;
+Write-Host "Installed to local Maven repository (~/.m2/repository)" -ForegroundColor Green

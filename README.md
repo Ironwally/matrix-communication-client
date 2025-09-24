@@ -75,7 +75,7 @@ See [Local publish 3.](#local-publish-3) on how to include.
     - (Minor release) x.*y+*.z: backward-compatible features or deprecations
     - (Major release) *x+*.y.z: API breaking/behavior breaking changes
 
-2. Build (runs tests) and deploy to a local file repository:
+2. Build (runs tests) and install to your local Maven repository (~/.m2):
 
   Windows PowerShell (script):
   ```powershell
@@ -87,29 +87,22 @@ See [Local publish 3.](#local-publish-3) on how to include.
   ```
 
 <a id="local-publish-3"></a>
-3. Add this repository to another project's `pom.xml` to consume the artifact:
-   ```xml
-   <repositories>
-     <repository>
-       <id>local-repo</id>
-       <url>file:///${project.basedir}/relative/path/to/this/project/local-repo</url>
-       <snapshots><enabled>true</enabled></snapshots>
-       <releases><enabled>true</enabled></releases>
-     </repository>
-   </repositories>
-   <dependency>
-     <groupId>io.github.ironwally</groupId>
-     <artifactId>matrix-communication-client-fork</artifactId>
-     <version>1.10-SNAPSHOT</version>
-   </dependency>
-   ```
+3. Consume from your local Maven repository:
+   - Maven:
+     ```xml
+     <dependency>
+       <groupId>io.github.ironwally</groupId>
+       <artifactId>matrix-communication-client-fork</artifactId>
+       <version>1.10-SNAPSHOT</version>
+     </dependency>
+     ```
 
-   Gradle (Groovy DSL):
+   - Gradle (Groovy DSL):
 
    ```groovy
    // build.gradle
    repositories {
-     maven { url = uri("${rootDir}/relative/path/to/this/project/local-repo") }
+     mavenLocal()
    }
 
    dependencies {
@@ -117,12 +110,12 @@ See [Local publish 3.](#local-publish-3) on how to include.
    }
    ```
 
-   Gradle (Kotlin DSL):
+   - Gradle (Kotlin DSL):
 
    ```kotlin
    // build.gradle.kts
    repositories {
-     maven { url = uri("${'$'}{rootDir}/relative/path/to/this/project/local-repo") }
+     mavenLocal()
    }
 
    dependencies {

@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-set -e
-# Run tests and publish local to ./local-repo
-./mvnw clean deploy -DaltDeploymentRepository=local::file:./local-repo \
-  && echo "Published to $(cd ./local-repo && pwd)"
+set -euo pipefail
+
+# Build, run tests, attach sources/javadocs, and install to local Maven repo (~/.m2)
+# Jar sources and javadocs are attached in this script to avoid duplicate attachments with the parent. 
+./mvnw \
+  clean \
+  source:jar-no-fork \
+  javadoc:jar \
+  install \
+  -Dgcf.skip=true
+
+echo "Installed to local Maven repository (~/.m2/repository)"
