@@ -1,6 +1,7 @@
 package com.cosium.matrix_communication_client.message;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
@@ -45,8 +46,10 @@ public class Message {
   @JsonProperty("format") public String format() { return format; }
   @JsonProperty("formatted_body") public String formattedBody() { return formattedBody; }
   @JsonProperty("msgtype") public String type() { return type; }
-  @JsonProperty("timestamp") public long timestamp() { return timestamp; }
-  @JsonProperty("id") public long id() { return id; }
+  // Do not serialize timestamp and id in outgoing payloads to match Matrix API expectations
+  // TODO: Check if api has similar attributes and replace if so
+  @JsonIgnore public long timestamp() { return timestamp; }
+  @JsonIgnore public long id() { return id; }
   @Override public int hashCode() { return Objects.hash(body, format, formattedBody, type, timestamp, id); }
 
   public static Builder builder() { 
@@ -63,6 +66,7 @@ public class Message {
 
     private Builder() {
       format = "org.matrix.custom.html";
+      type = "undefined";
       timestamp = System.currentTimeMillis();
       id = 0L;
     }
@@ -84,11 +88,11 @@ public class Message {
     public Message build() { return new Message(this); }
 
     // New methods. First decide which type of message
-    public MessageText.Builder text(String content) { return new MessageText.Builder(this).body(content); }
-    public MessageImage.Builder image(String content, String url) { return new MessageImage.Builder(this).body(content).url(url); }
-    public MessageFile.Builder file(String content, String url) { return new MessageFile.Builder(this).body(content).url(url); }
-    public MessageAudio.Builder audio(String content, String url) { return new MessageAudio.Builder(this).body(content).url(url); }
-    public MessageEmote.Builder sticker(String content) { return new MessageEmote.Builder(this).body(content); }
+    public MessageText.Builder text(String content) { return new MessageText.Builder(this).body(content).formattedBody("<b>"+content+"</b>"); }
+    public MessageImage.Builder image(String content, String url) { return new MessageImage.Builder(this).body(content).formattedBody("<b>"+content+"</b>").url(url); }
+    public MessageFile.Builder file(String content, String url) { return new MessageFile.Builder(this).body(content).formattedBody("<b>"+content+"</b>").url(url); }
+    public MessageAudio.Builder audio(String content, String url) { return new MessageAudio.Builder(this).body(content).formattedBody("<b>"+content+"</b>").url(url); }
+    public MessageEmote.Builder sticker(String content) { return new MessageEmote.Builder(this).body(content).formattedBody("<b>"+content+"</b>"); }
     public MessagePoll.Builder poll(String question, String[] answers) { return new MessagePoll.Builder(this).question(question).answers(answers); }
   }
 }
