@@ -30,7 +30,7 @@ public class Example {
                 .topic("Anything about science")
                 .build());
 	
-    room.sendMessage(Message.builder().body("Hello !").formattedBody("<b>Hello !</b>").build());
+    room.sendMessage(Message.builder().text("Hello !").build());
   }
 }
 ```
@@ -54,7 +54,7 @@ public class Example {
         .rooms()
         .byId("!PVvauSmjcHLwoAJkyT:matrix.example.org");
 	
-    room.sendMessage(Message.builder().body("Hello !").formattedBody("<b>Hello !</b>").build());
+    room.sendMessage(Message.builder().text("Hello !").build());
   }
 }
 ```
