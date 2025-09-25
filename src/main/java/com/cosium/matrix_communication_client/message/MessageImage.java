@@ -6,25 +6,25 @@ package com.cosium.matrix_communication_client.message;
 */
 public class MessageImage extends Message {
 
-  private final String url; // mxc:// URI or http fallback
-  private final String filename;
+  private final String filename; // original filename
+  private final String url; // mxc:// URI 
   private final ImageInfo info;
 
   protected MessageImage(Builder builder) {
     super(builder);
-    this.url = builder.url;
     this.filename = builder.filename;
+    this.url = builder.url;
     this.info = builder.info;
   }
 
-  public String url() { return url; }
   public String filename() { return filename; }
+  public String url() { return url; }
   public ImageInfo info() { return info; }
 
   public static final class Builder extends Message.Builder {
 
-    private String url;
     private String filename;
+    private String url;
     private ImageInfo info;
 
     Builder(Message.Builder base) {
@@ -32,14 +32,12 @@ public class MessageImage extends Message {
       this.type = "m.image";
     }
 
-    public Builder url(String uri) {
-      this.url = uri;
-      return this;
-    }
+    public Builder url(String uri) { this.url = uri; return this; }
 
-    public Builder fillMetaData() {
+    /** Fetches the metadata from the matrix media repository **/
+    public Builder fetchMetaData() {
       // TODO: Requires implementing matrix media API resolver
-      throw new UnsupportedOperationException("Not implemented yet.");
+      return this;
     }
 
     // caption for image
@@ -53,18 +51,18 @@ public class MessageImage extends Message {
 
   public static class ImageInfo {
     public final Integer h;
-    public final Integer w;
-    public final Integer size;
     public final String mimeType;
+    public final Integer size;
+    public final Integer w; 
 
     public ImageInfo(Integer h, Integer w, Integer size, String mimeType) {
       if (h == null || w == null || size == null || mimeType == null) {
         throw new IllegalArgumentException("Attribute missing");
       }
       this.h = h;
-      this.w = w;
-      this.size = size;
       this.mimeType = mimeType;
+      this.size = size;
+      this.w = w;
     }
   }
 }

@@ -1,4 +1,6 @@
-package com.cosium.matrix_communication_client;
+package com.cosium.matrix_communication_client.room;
+
+import com.cosium.matrix_communication_client.CreateRoomInput;
 
 /**
  * @author Réda Housni Alaoui

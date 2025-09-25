@@ -2,11 +2,17 @@ package com.cosium.matrix_communication_client;
 
 import static java.util.Objects.requireNonNull;
 
+import com.cosium.matrix_communication_client.media.AttachmentConfig;
 import com.cosium.matrix_communication_client.message.Message;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -66,6 +72,98 @@ class MatrixApi {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Convenience: Upload an attachment to the Matrix media API and send it as an m.image event to a room.
+   * Minimal implementation: uploads raw bytes, then posts a message referencing the returned MXC URI.
+   */
+  public CreatedEvent sendImageAttachmentToRoom(
+      String roomId,
+      String filename,
+      String contentType,
+      byte[] data,
+      AttachmentConfig config) {
+
+    String mxcUri = uploadMedia(filename, contentType, data);
+
+    // Choose caption if provided, otherwise fall back to filename
+  String captionBody = Optional.ofNullable(config)
+        .map(AttachmentConfig::getCaption)
+        .filter(c -> !c.isBlank())
+        .orElse(filename);
+
+  Message message = Message.builder().image(captionBody, mxcUri).build();
+    return sendMessageToRoom(message, roomId);
+  }
+
+  /** Streamed upload variant using Path to avoid loading whole file in memory. */
+  public CreatedEvent sendImageAttachmentToRoom(
+      String roomId,
+      String filename,
+      String contentType,
+      java.nio.file.Path file,
+      AttachmentConfig config) {
+    final HttpRequest.BodyPublisher body;
+    try {
+      body = BodyPublishers.ofFile(file);
+    } catch (java.io.FileNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    String mxcUri = uploadMedia(filename, contentType, body);
+
+    String body = Optional.ofNullable(config)
+        .map(AttachmentConfig::getCaption)
+        .filter(c -> !c.isBlank())
+        .orElse(filename);
+
+    Message message = Message.builder().image(body, mxcUri).build();
+    return sendMessageToRoom(message, roomId);
+  }
+
+  // --- helpers
+
+  private String uploadMedia(String filename, String contentType, byte[] data) {
+    return uploadMedia(filename, contentType, BodyPublishers.ofByteArray(data));
+  }
+
+  private String uploadMedia(String filename, String contentType, HttpRequest.BodyPublisher body) {
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(mediaBaseUri()
+                .addPathSegments("upload")
+                .addQueryParameter("filename", filename)
+                .toUri())
+            .header("Authorization", String.format("Bearer %s", accessTokenFactory.build()))
+            .header("Content-Type", contentType)
+            .header("Accept", APPLICATION_JSON)
+            .POST(body)
+            .build();
+
+    try {
+      HttpResponse<java.util.function.Supplier<JsonBody<UploadResponse>>> response =
+          httpClient.send(request, jsonHandlers.handler(UploadResponse.class));
+      return response.body().get().parse().contentUri;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
+    }
+  }
+
+  private MatrixUri mediaBaseUri() {
+    URI u = baseUri.toUri();
+    try {
+      return new MatrixUri(
+          new URI(u.getScheme(), u.getUserInfo(), u.getHost(), u.getPort(), "/_matrix/media/v3", null, null));
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static final class UploadResponse {
+    @JsonProperty("content_uri") String contentUri;
   }
 
   public CreateRoomOutput createRoom(CreateRoomInput input) {

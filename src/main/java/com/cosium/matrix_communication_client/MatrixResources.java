@@ -1,5 +1,7 @@
 package com.cosium.matrix_communication_client;
 
+import com.cosium.matrix_communication_client.room.RoomsResource;
+
 /**
  * @author Réda Housni Alaoui
  */

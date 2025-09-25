@@ -2,6 +2,7 @@ package com.cosium.matrix_communication_client;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+import com.cosium.matrix_communication_client.room.RoomsResource;
 import com.cosium.synapse_junit_extension.EnableSynapse;
 import com.cosium.synapse_junit_extension.Synapse;
 import java.util.UUID;

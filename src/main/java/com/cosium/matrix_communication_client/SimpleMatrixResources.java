@@ -1,5 +1,6 @@
 package com.cosium.matrix_communication_client;
 
+import com.cosium.matrix_communication_client.room.RoomsResource;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;

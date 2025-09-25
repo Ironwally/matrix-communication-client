@@ -11,13 +11,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author Réda Housni Alaoui
  */
-class SimpleRoomResource implements RoomResource {
+class NewRoomResource implements RoomResource {
 
   private final Lazy<MatrixApi> api;
   private final ObjectMapper objectMapper;
   private final String id;
 
-  public SimpleRoomResource(Lazy<MatrixApi> api, ObjectMapper objectMapper, String id) {
+  public NewRoomResource(Lazy<MatrixApi> api, ObjectMapper objectMapper, String id) {
     this.api = requireNonNull(api);
     this.objectMapper = requireNonNull(objectMapper);
     this.id = requireNonNull(id);

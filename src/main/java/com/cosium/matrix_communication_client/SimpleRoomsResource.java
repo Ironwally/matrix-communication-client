@@ -2,6 +2,7 @@ package com.cosium.matrix_communication_client;
 
 import static java.util.Objects.requireNonNull;
 
+import com.cosium.matrix_communication_client.room.RoomResource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
