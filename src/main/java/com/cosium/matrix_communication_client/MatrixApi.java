@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * @author Réda Housni Alaoui
  */
-class MatrixApi {
+public class MatrixApi {
 
   private static final String APPLICATION_JSON = "application/json";
   private final HttpClient httpClient;
@@ -75,8 +75,7 @@ class MatrixApi {
   }
 
   /**
-   * Convenience: Upload an attachment to the Matrix media API and send it as an m.image event to a room.
-   * Minimal implementation: uploads raw bytes, then posts a message referencing the returned MXC URI.
+   * Upload an attachment to the Matrix media API and send it as an m.image event to a room.
    */
   public CreatedEvent sendImageAttachmentToRoom(
       String roomId,
@@ -97,20 +96,20 @@ class MatrixApi {
     return sendMessageToRoom(message, roomId);
   }
 
-  /** Streamed upload variant using Path to avoid loading whole file in memory. */
+  /** Upload an attachment to the Matrix media API and send it as an m.image event to a room. */
   public CreatedEvent sendImageAttachmentToRoom(
       String roomId,
       String filename,
       String contentType,
       java.nio.file.Path file,
       AttachmentConfig config) {
-    final HttpRequest.BodyPublisher body;
+    final HttpRequest.BodyPublisher bodyPublisher;
     try {
-      body = BodyPublishers.ofFile(file);
+      bodyPublisher = BodyPublishers.ofFile(file);
     } catch (java.io.FileNotFoundException e) {
       throw new RuntimeException(e);
     }
-    String mxcUri = uploadMedia(filename, contentType, body);
+    String mxcUri = uploadMedia(filename, contentType, bodyPublisher);
 
     String body = Optional.ofNullable(config)
         .map(AttachmentConfig::getCaption)

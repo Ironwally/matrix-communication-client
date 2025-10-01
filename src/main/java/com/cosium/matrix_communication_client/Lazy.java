@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 /**
  * @author Réda Housni Alaoui
  */
-class Lazy<T> implements Supplier<T> {
+public class Lazy<T> implements Supplier<T> {
   private static final String CACHE_KEY = String.valueOf(0);
   private final Map<String, T> cache = new ConcurrentHashMap<>();
 
