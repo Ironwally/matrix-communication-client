@@ -24,13 +24,14 @@ public class MediaUploadTest {
             .port(synapse.port())
             .usernamePassword(synapse.adminUsername(), synapse.adminPassword())
             .build();
-  } 
+  }
 
     @Test
     @DisplayName("Send an Image to a Room")
     void sendAttachment() {
         RoomResource room = createRoom();
         final File image = new File("cat.jpg");
+        room.sendAttachment(image, "my pretty cat");
         room.sendAttachment(
             "cat.jpg",
             "image/jpeg",

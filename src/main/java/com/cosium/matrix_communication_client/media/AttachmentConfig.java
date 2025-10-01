@@ -13,6 +13,8 @@ public class AttachmentConfig {
     private Reply reply; /** Reply parameters for the attachment (replied-to event and thread-related metadata). */
 
     public AttachmentConfig() {}
+    /** @deprecated Replaced by builder() */
+    @Deprecated
     public static AttachmentConfig newConfig() { return new AttachmentConfig(); }
 
     public AttachmentConfig txnId(OwnedTransactionId txnId) { this.txnId = txnId; return this; }

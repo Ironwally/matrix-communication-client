@@ -1,4 +1,4 @@
-package com.media;
+package com.cosium.matrix_communication_client.media;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -44,6 +44,6 @@ public class Media {
         return Duration.ofSeconds(seconds);
     }
 
-    
+
 }
 
