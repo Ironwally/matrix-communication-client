@@ -52,14 +52,14 @@ public class Message {
   @JsonIgnore public long id() { return id; }
   @Override public int hashCode() { return Objects.hash(body, format, formattedBody, type, timestamp, id); }
 
-  public static Builder builder() { 
-    return new Builder(); 
+  public static Builder builder() {
+    return new Builder();
   }
 
   public static class Builder {
     protected String body;
     protected String format;
-    protected String formattedBody; 
+    protected String formattedBody;
     protected String type;
     protected long timestamp;
     protected long id;

@@ -1,13 +1,16 @@
 package com.cosium.matrix_communication_client.message;
 
-/** Matrix m.image message 
- * If the filename is present, and its value is different than body, then body is considered to be a caption, 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/** Matrix m.image message
+ * If the filename is present, and its value is different than body, then body is considered to be a caption,
  * otherwise body is a filename. format and formatted_body are only used for captions.
 */
 public class MessageImage extends Message {
 
   private final String filename; // original filename
-  private final String url; // mxc:// URI 
+  private final String url; // mxc:// URI
   private final ImageInfo info;
 
   protected MessageImage(Builder builder) {
@@ -17,9 +20,27 @@ public class MessageImage extends Message {
     this.info = builder.info;
   }
 
-  public String filename() { return filename; }
-  public String url() { return url; }
-  public ImageInfo info() { return info; }
+  @SuppressWarnings("unused") // Constructor needed for JsonObject for sending message to homeserver
+  @JsonCreator
+  MessageImage(
+      @JsonProperty("body") String body,
+      @JsonProperty("format") String format,
+      @JsonProperty("formatted_body") String formattedBody,
+      @JsonProperty("type") String type,
+      @JsonProperty("timestamp") Long timestamp,
+      @JsonProperty("id") Long id,
+      @JsonProperty("filename") String filename,
+      @JsonProperty("url") String url,
+      @JsonProperty("info") ImageInfo info) {
+    super(body, format, formattedBody, type, timestamp, id);
+    this.filename = filename;
+    this.url = url;
+    this.info = info;
+  }
+
+  @JsonProperty("filename") public String filename() { return filename; }
+  @JsonProperty("url") public String url() { return url; }
+  @JsonProperty("info") public ImageInfo info() { return info; }
 
   public static final class Builder extends Message.Builder {
 
@@ -53,7 +74,7 @@ public class MessageImage extends Message {
     public final Integer h;
     public final String mimeType;
     public final Integer size;
-    public final Integer w; 
+    public final Integer w;
 
     public ImageInfo(Integer h, Integer w, Integer size, String mimeType) {
       if (h == null || w == null || size == null || mimeType == null) {

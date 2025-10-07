@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * @author Réda Housni Alaoui
+ *
+ * Matrix Spec Link: https://spec.matrix.org/v1.1/client-server-api/#get_matrixclientv3roomsroomidmessages
+ * TODO: Add DTOs for seperation of json input and output classes
  */
 class RawClientEvent {
 

@@ -96,7 +96,7 @@ public class MatrixResourcesFactory {
     }
 
     public MatrixResources build() {
-      return new SimpleMatrixResources(
+      return new NewMatrixResources(
           https, hostname, port, connectTimeout, accessTokenFactoryFactory);
     }
   }

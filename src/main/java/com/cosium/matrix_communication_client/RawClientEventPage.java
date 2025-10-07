@@ -27,19 +27,8 @@ public class RawClientEventPage {
     this.state = Optional.ofNullable(state).map(List::copyOf).orElseGet(List::of);
   }
 
-  public List<RawClientEvent> chunk() {
-    return chunk;
-  }
-
-  public String end() {
-    return end;
-  }
-
-  public String start() {
-    return start;
-  }
-
-  public List<RawClientEvent> state() {
-    return state;
-  }
+  public List<RawClientEvent> chunk() { return chunk; }
+  public String end() { return end; }
+  public String start() { return start; }
+  public List<RawClientEvent> state() { return state; }
 }

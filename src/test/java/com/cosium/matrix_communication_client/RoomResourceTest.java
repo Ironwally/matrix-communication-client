@@ -32,6 +32,14 @@ class RoomResourceTest {
             .port(synapse.port())
             .usernamePassword(synapse.adminUsername(), synapse.adminPassword())
             .build();
+    // Overriding resources with own running matrix server to see server logs
+    resources = MatrixResources.factory()
+                .builder()
+                .http()
+                .hostname("localhost")
+                .defaultPort()
+                .usernamePassword("admin", "magentaerenfarve")
+                .build();
   }
 
   @Test
@@ -72,9 +80,9 @@ class RoomResourceTest {
   private RoomResource createRoom() {
     CreateRoomInput createRoomInput =
         CreateRoomInput.builder()
-            .name(UUID.randomUUID().toString())
-            .roomAliasName(UUID.randomUUID().toString())
-            .topic(UUID.randomUUID().toString())
+            .name(RoomResourceTest.class.getSimpleName() + UUID.randomUUID().toString())
+            .roomAliasName(RoomResourceTest.class.getSimpleName() + UUID.randomUUID().toString())
+            .topic(RoomResourceTest.class.getSimpleName() + UUID.randomUUID().toString())
             .build();
     return resources.rooms().create(createRoomInput);
   }

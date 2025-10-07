@@ -1,7 +1,10 @@
 package com.cosium.matrix_communication_client.message;
 
-/** Matrix m.audio message 
- * If the filename is present, and its value is different than body, then body is considered to be a caption, 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/** Matrix m.audio message
+ * If the filename is present, and its value is different than body, then body is considered to be a caption,
  * otherwise body is a filename. format and formatted_body are only used for captions.
 */
 public class MessageAudio extends Message {
@@ -18,10 +21,30 @@ public class MessageAudio extends Message {
     this.mimeType = builder.mimeType;
   }
 
-  public String url() { return url; }
-  public long durationMs() { return durationMs; }
-  public long size() { return size; }
-  public String mimeType() { return mimeType; }
+  @SuppressWarnings("unused") // Constructor needed for JsonObject for sending message to homeserver // Constructor needed for JsonObject for sending message to homeserver
+  @JsonCreator
+  MessageAudio(
+      @JsonProperty("body") String body,
+      @JsonProperty("format") String format,
+      @JsonProperty("formatted_body") String formattedBody,
+      @JsonProperty("msgtype") String type,
+      @JsonProperty("timestamp") Long timestamp,
+      @JsonProperty("id") Long id,
+      @JsonProperty("url") String url,
+      @JsonProperty("durationMs") Long durationMs,
+      @JsonProperty("size") Long size,
+      @JsonProperty("mimeType") String mimeType) {
+    super(body, format, formattedBody, type, timestamp, id);
+    this.url = url;
+    this.durationMs = durationMs == null ? 0L : durationMs;
+    this.size = size == null ? 0L : size;
+    this.mimeType = mimeType;
+  }
+
+  @JsonProperty("url") public String url() { return url; }
+  @JsonProperty("durationMs") public long durationMs() { return durationMs; }
+  @JsonProperty("size") public long size() { return size; }
+  @JsonProperty("mimeType") public String mimeType() { return mimeType; }
 
   public static final class Builder extends Message.Builder {
     private String url;

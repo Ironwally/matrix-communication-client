@@ -2,7 +2,6 @@ package com.cosium.matrix_communication_client;
 
 import static java.util.Objects.requireNonNull;
 
-import com.cosium.matrix.client.core.serialization.UploadMediaEvent;
 import com.cosium.matrix_communication_client.media.AttachmentConfig;
 import com.cosium.matrix_communication_client.message.Message;
 import java.io.IOException;
@@ -250,6 +249,9 @@ public class MatrixApi {
     }
   }
 
+  /*
+   * Matrix Spec Link: https://github.com/element-hq/synapse/blob/develop/docs/admin_api/rooms.md#Room-messages-api
+   */
   public RawClientEventPage fetchMessagePage(
       String roomId, String dir, String from, String limit, String to) {
     URI uri =
