@@ -2,16 +2,16 @@ package com.cosium.matrix_communication_client;
 
 import static java.util.Objects.requireNonNull;
 
+import com.cosium.matrix.client.core.serialization.UploadMediaEvent;
 import com.cosium.matrix_communication_client.media.AttachmentConfig;
 import com.cosium.matrix_communication_client.message.Message;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -84,15 +84,15 @@ public class MatrixApi {
       byte[] data,
       AttachmentConfig config) {
 
-    String mxcUri = uploadMedia(filename, contentType, data);
+    String mxcUri = uploadMedia(filename, contentType, data).contentUri();
 
     // Choose caption if provided, otherwise fall back to filename
-  String captionBody = Optional.ofNullable(config)
+    String captionBody = Optional.ofNullable(config)
         .map(AttachmentConfig::getCaption)
         .filter(c -> !c.isBlank())
         .orElse(filename);
 
-  Message message = Message.builder().image(captionBody, mxcUri).build();
+    Message message = Message.builder().image(captionBody, mxcUri).build();
     return sendMessageToRoom(message, roomId);
   }
 
@@ -109,7 +109,7 @@ public class MatrixApi {
     } catch (java.io.FileNotFoundException e) {
       throw new RuntimeException(e);
     }
-    String mxcUri = uploadMedia(filename, contentType, bodyPublisher);
+    String mxcUri = uploadMedia(filename, contentType, bodyPublisher).contentUri();
 
     String body = Optional.ofNullable(config)
         .map(AttachmentConfig::getCaption)
@@ -122,11 +122,11 @@ public class MatrixApi {
 
   // --- helpers
 
-  private String uploadMedia(String filename, String contentType, byte[] data) {
+  public UploadMediaEvent uploadMedia(String filename, String contentType, byte[] data) {
     return uploadMedia(filename, contentType, BodyPublishers.ofByteArray(data));
   }
 
-  private String uploadMedia(String filename, String contentType, HttpRequest.BodyPublisher body) {
+  public UploadMediaEvent uploadMedia(String filename, String contentType, HttpRequest.BodyPublisher body) {
     HttpRequest request =
         HttpRequest.newBuilder()
             .uri(mediaBaseUri()
@@ -140,9 +140,51 @@ public class MatrixApi {
             .build();
 
     try {
-      HttpResponse<java.util.function.Supplier<JsonBody<UploadResponse>>> response =
-          httpClient.send(request, jsonHandlers.handler(UploadResponse.class));
-      return response.body().get().parse().contentUri;
+      return httpClient.send(request, jsonHandlers.handler(UploadMediaEvent.class))
+          .body()
+          .get()
+          .parse();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
+    }
+  }
+
+  public byte[] downloadMedia(String mxcUri) {
+    URI uri = URI.create(mxcUri);
+    if (!"mxc".equalsIgnoreCase(uri.getScheme())) {
+      throw new IllegalArgumentException("URI must use the mxc scheme");
+    }
+
+    String serverName = Optional.ofNullable(uri.getHost())
+        .filter(host -> !host.isBlank())
+        .orElseThrow(() -> new IllegalArgumentException("mxc URI must contain a server name"));
+
+    String rawPath = Optional.ofNullable(uri.getPath())
+        .filter(path -> !path.isBlank())
+        .orElseThrow(() -> new IllegalArgumentException("mxc URI must contain a media identifier"));
+
+    String mediaId = rawPath.startsWith("/") ? rawPath.substring(1) : rawPath;
+
+    MatrixUri downloadUri = mediaBaseUri().addPathSegments("download", serverName);
+    for (String segment : mediaId.split("/")) {
+      if (!segment.isBlank()) {
+        downloadUri = downloadUri.addPathSegments(segment);
+      }
+    }
+
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(downloadUri.toUri())
+            .header("Authorization", String.format("Bearer %s", accessTokenFactory.build()))
+            .header("Accept", "application/octet-stream")
+            .GET()
+            .build();
+
+    try {
+      return httpClient.send(request, BodyHandlers.ofByteArray()).body();
     } catch (IOException e) {
       throw new RuntimeException(e);
     } catch (InterruptedException e) {
@@ -159,10 +201,6 @@ public class MatrixApi {
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  private static final class UploadResponse {
-    @JsonProperty("content_uri") String contentUri;
   }
 
   public CreateRoomOutput createRoom(CreateRoomInput input) {

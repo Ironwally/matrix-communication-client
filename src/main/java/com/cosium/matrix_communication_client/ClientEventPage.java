@@ -14,7 +14,7 @@ public class ClientEventPage {
   private final ObjectMapper objectMapper;
   private final RawClientEventPage raw;
 
-  ClientEventPage(ObjectMapper objectMapper, RawClientEventPage raw) {
+  public ClientEventPage(ObjectMapper objectMapper, RawClientEventPage raw) {
     this.objectMapper = requireNonNull(objectMapper);
     this.raw = requireNonNull(raw);
   }

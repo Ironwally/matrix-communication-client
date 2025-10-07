@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * @author Réda Housni Alaoui
  */
-class RawClientEventPage {
+public class RawClientEventPage {
 
   private final List<RawClientEvent> chunk;
   private final String end;

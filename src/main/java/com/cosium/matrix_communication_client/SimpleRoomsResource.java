@@ -3,12 +3,13 @@ package com.cosium.matrix_communication_client;
 import static java.util.Objects.requireNonNull;
 
 import com.cosium.matrix_communication_client.room.RoomResource;
+import com.cosium.matrix_communication_client.room.RoomsResource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Réda Housni Alaoui
  */
-class SimpleRoomsResource implements RoomsResource {
+public class SimpleRoomsResource implements RoomsResource {
 
   private final Lazy<MatrixApi> api;
   private final ObjectMapper objectMapper;

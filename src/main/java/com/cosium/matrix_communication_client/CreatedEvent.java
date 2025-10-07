@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author Réda Housni Alaoui
  */
-class CreatedEvent {
+public class CreatedEvent {
 
   private final String id;
 

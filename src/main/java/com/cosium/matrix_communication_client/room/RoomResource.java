@@ -40,9 +40,8 @@ public interface RoomResource {
    */
   ClientEventPage fetchEventPage(String dir, String from, Long limit, String to);
 
-  void sendAttachment(File file);
   void sendAttachment(File file, AttachmentConfig config);
-  void sendAttachment(String filename, String contentType, java.io.File file, AttachmentConfig config);
+  void sendAttachment(String filename, String contentType, File file, AttachmentConfig config);
   /**
    * Sends an attachment to the room. This is a convenience method that uploads the attachment to
    * the media repository and sends a message with the resulting mxc:// URI.

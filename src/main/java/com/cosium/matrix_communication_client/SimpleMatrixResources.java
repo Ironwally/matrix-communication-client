@@ -1,5 +1,7 @@
 package com.cosium.matrix_communication_client;
 
+import com.cosium.matrix_communication_client.media.Media;
+import com.cosium.matrix_communication_client.media.MediaResource;
 import com.cosium.matrix_communication_client.room.RoomsResource;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +15,7 @@ class SimpleMatrixResources implements MatrixResources {
   private final ObjectMapper objectMapper;
   private final AccessTokenFactory accessTokenFactory;
   private final Lazy<MatrixApi> api;
+  private final Lazy<MediaResource> media;
 
   public SimpleMatrixResources(
       boolean https,
@@ -29,6 +32,7 @@ class SimpleMatrixResources implements MatrixResources {
     api =
         Lazy.of(
             () -> MatrixApi.load(httpClientFactory, jsonHandlers, matrixUris, accessTokenFactory));
+  media = Lazy.of(() -> new Media(api.get()));
   }
 
   @Override
@@ -39,5 +43,10 @@ class SimpleMatrixResources implements MatrixResources {
   @Override
   public RoomsResource rooms() {
     return new SimpleRoomsResource(api, objectMapper);
+  }
+
+  @Override
+  public MediaResource media() {
+    return media.get();
   }
 }

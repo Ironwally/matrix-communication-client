@@ -7,6 +7,8 @@ import com.cosium.matrix_communication_client.media.AttachmentConfig;
 import com.cosium.matrix_communication_client.message.Message;
 import com.cosium.matrix_communication_client.room.RoomResource;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import org.springframework.http.MediaTypeFactory;
 
 /**
  * @author Réda Housni Alaoui
@@ -44,12 +46,20 @@ class SimpleRoomResource implements RoomResource {
   }
 
   @Override
+  public void sendAttachment(File file, AttachmentConfig config) {
+    MediaTypeFactory.getMediaType(file.getName())
+        .ifPresentOrElse(
+            mediaType -> sendAttachment(file.getName(), mediaType.toString(), file, config),
+            () -> sendAttachment(file.getName(), null, file, config));
+  }
+
+  @Override
   public void sendAttachment(String filename, String contentType, byte[] data, AttachmentConfig config) {
     api.get().sendImageAttachmentToRoom(id, filename, contentType, data, config);
   }
 
   @Override
-  public void sendAttachment(String filename, String contentType, java.io.File file, AttachmentConfig config) {
-  api.get().sendImageAttachmentToRoom(id, filename, contentType, file.toPath(), config);
+  public void sendAttachment(String filename, String contentType, File file, AttachmentConfig config) {
+    api.get().sendImageAttachmentToRoom(id, filename, contentType, file.toPath(), config);
   }
 }

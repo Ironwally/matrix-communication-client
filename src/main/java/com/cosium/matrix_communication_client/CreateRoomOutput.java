@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Réda Housni Alaoui
+ * Returned by MatrixApi after sending Room creation request
  */
 class CreateRoomOutput {
 

@@ -1,5 +1,6 @@
 package com.cosium.matrix_communication_client;
 
+import com.cosium.matrix_communication_client.media.MediaResource;
 import com.cosium.matrix_communication_client.room.RoomsResource;
 
 /**
@@ -14,4 +15,6 @@ public interface MatrixResources {
   AccessTokensResource accessTokens();
 
   RoomsResource rooms();
+
+  MediaResource media();
 }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author Réda Housni Alaoui
  */
-class SimpleClientEventResource implements ClientEventResource {
+public class SimpleClientEventResource implements ClientEventResource {
 
   private final Lazy<MatrixApi> api;
   private final ObjectMapper objectMapper;
