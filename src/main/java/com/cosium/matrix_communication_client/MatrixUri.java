@@ -79,6 +79,33 @@ class MatrixUri {
     }
   }
 
+  public MatrixUri withPathSegments(String... pathSegments) {
+    StringBuilder pathBuilder = new StringBuilder();
+
+    Stream.of(pathSegments == null ? new String[0] : pathSegments)
+        .map(String::trim)
+        .map(this::assertValidPathSegment)
+        .forEach(segment -> pathBuilder.append("/").append(segment));
+
+    if (pathBuilder.length() == 0) {
+      pathBuilder.append("/");
+    }
+
+    try {
+      return new MatrixUri(
+          new URI(
+              uriValue.getScheme(),
+              uriValue.getUserInfo(),
+              uriValue.getHost(),
+              uriValue.getPort(),
+              pathBuilder.toString(),
+              null,
+              null));
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private String assertValidPathSegment(String segment) {
     if (segment == null) {
       throw new IllegalArgumentException("The segment should not be null");
