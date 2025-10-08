@@ -27,12 +27,10 @@ public class MessageImage extends Message {
       @JsonProperty("format") String format,
       @JsonProperty("formatted_body") String formattedBody,
       @JsonProperty("type") String type,
-      @JsonProperty("timestamp") Long timestamp,
-      @JsonProperty("id") Long id,
       @JsonProperty("filename") String filename,
       @JsonProperty("url") String url,
       @JsonProperty("info") ImageInfo info) {
-    super(body, format, formattedBody, type, timestamp, id);
+    super(body, format, formattedBody, type);
     this.filename = filename;
     this.url = url;
     this.info = info;
@@ -51,32 +49,33 @@ public class MessageImage extends Message {
     Builder(Message.Builder base) {
       super(base);
       this.type = "m.image";
+      this.info = null;
     }
 
+    @Override public Builder body(String body) { this.body = body; return this; }
+    @Override public Builder format(String format) { this.format = format; return this; }
+    @Override public Builder formattedBody(String formattedBody) { this.formattedBody = formattedBody; return this; }
+
+    public Builder caption(String caption) { this.body = caption; return this; } // alias for body
     public Builder url(String uri) { this.url = uri; return this; }
+    public Builder imageInfo(Integer height, String mimeType, Integer size, Integer width) { this.info = new ImageInfo(height, width, size, mimeType); return this; }
+    public Builder filename(String filename) { this.filename = filename; return this; }
 
-    /** Fetches the metadata from the matrix media repository **/
-    public Builder fetchMetaData() {
-      // TODO: Requires implementing matrix media API resolver
-      return this;
-    }
-
-    // caption for image
-    @Override public Builder body(String body) { super.body(body); return this; }
-    @Override public Builder format(String format) { super.format(format); return this; }
-    @Override public Builder formattedBody(String formattedBody) { super.formattedBody(formattedBody); return this; }
-    @Override public Builder timestamp(long timestamp) { super.timestamp(timestamp); return this; }
-    @Override public Builder id(long id) { super.id(id); return this; }
     @Override public MessageImage build() { return new MessageImage(this); }
   }
 
-  public static class ImageInfo {
-    public final Integer h;
-    public final String mimeType;
-    public final Integer size;
-    public final Integer w;
+  protected static class ImageInfo {
+    private final Integer h;
+    private final String mimeType;
+    private final Integer size;
+    private final Integer w;
 
-    public ImageInfo(Integer h, Integer w, Integer size, String mimeType) {
+    @JsonCreator
+    public ImageInfo(
+      @JsonProperty("h") Integer h,
+      @JsonProperty("w") Integer w,
+      @JsonProperty("size") Integer size,
+      @JsonProperty("mimetype") String mimeType) {
       if (h == null || w == null || size == null || mimeType == null) {
         throw new IllegalArgumentException("Attribute missing");
       }
@@ -85,5 +84,10 @@ public class MessageImage extends Message {
       this.size = size;
       this.w = w;
     }
+
+    @JsonProperty("h") public Integer height() { return h; }
+    @JsonProperty("w") public Integer width() { return w; }
+    @JsonProperty("size") public Integer size() { return size; }
+    @JsonProperty("mimetype") public String mimeType() { return mimeType; }
   }
 }

@@ -22,11 +22,9 @@ public class MessagePoll extends Message {
       @JsonProperty("format") String format,
       @JsonProperty("formatted_body") String formattedBody,
       @JsonProperty("msgtype") String type,
-      @JsonProperty("timestamp") Long timestamp,
-      @JsonProperty("id") Long id,
       @JsonProperty("question") String question,
       @JsonProperty("options") List<String> options) {
-    super(body, format, formattedBody, type, timestamp, id);
+    super(body, format, formattedBody, type);
     this.question = question;
     this.options = options == null ? List.of() : List.copyOf(options);
   }
@@ -49,11 +47,9 @@ public class MessagePoll extends Message {
     public Builder open() { this.hidden = false; return this; }
     public Builder question(String question) { this.question = question; return this; }
     public Builder answers(String[] answers) { this.answers = List.of(answers); return this; }
-    @Override public Builder body(String body) { super.body(body); return this; }
-    @Override public Builder format(String format) { super.format(format); return this; }
-    @Override public Builder formattedBody(String formattedBody) { super.formattedBody(formattedBody); return this; }
-    @Override public Builder timestamp(long timestamp) { super.timestamp(timestamp); return this; }
-    @Override public Builder id(long id) { super.id(id); return this; }
+    @Override public Builder body(String body) { this.body = body; return this; }
+    @Override public Builder format(String format) { this.format = format; return this; }
+    @Override public Builder formattedBody(String formattedBody) { this.formattedBody = formattedBody; return this; }
     @Override public MessagePoll build() { return new MessagePoll(this); }
   }
 }

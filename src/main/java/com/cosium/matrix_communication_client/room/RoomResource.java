@@ -2,9 +2,7 @@ package com.cosium.matrix_communication_client.room;
 
 import com.cosium.matrix_communication_client.ClientEventPage;
 import com.cosium.matrix_communication_client.ClientEventResource;
-import com.cosium.matrix_communication_client.media.AttachmentConfig;
 import com.cosium.matrix_communication_client.message.Message;
-import java.io.File;
 
 /**
  * @author Réda Housni Alaoui
@@ -39,22 +37,4 @@ public interface RoomResource {
    * @return A page of events
    */
   ClientEventPage fetchEventPage(String dir, String from, Long limit, String to);
-
-  void sendAttachment(File file, AttachmentConfig config);
-  void sendAttachment(String filename, String contentType, File file, AttachmentConfig config);
-  /**
-   * Sends an attachment to the room. This is a convenience method that uploads the attachment to
-   * the media repository and sends a message with the resulting mxc:// URI.
-   *
-   * Performs: TODO
-   * Upload (and optional thumbnail upload)
-   * Constructs the proper Image message content from the returned MXC URI(s)
-   * Sends the resulting m.room.message event
-   *
-   * @param filename The file name.
-   * @param contentType The type of the media, this will be used as the content-type header.
-   * @param data
-   * @param config Metadata and configuration for the attachment.
-   */
-  void sendAttachment(String filename, String contentType, byte[] data, AttachmentConfig config);
 }

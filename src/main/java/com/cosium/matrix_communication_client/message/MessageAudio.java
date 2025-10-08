@@ -28,13 +28,11 @@ public class MessageAudio extends Message {
       @JsonProperty("format") String format,
       @JsonProperty("formatted_body") String formattedBody,
       @JsonProperty("msgtype") String type,
-      @JsonProperty("timestamp") Long timestamp,
-      @JsonProperty("id") Long id,
       @JsonProperty("url") String url,
       @JsonProperty("durationMs") Long durationMs,
       @JsonProperty("size") Long size,
       @JsonProperty("mimeType") String mimeType) {
-    super(body, format, formattedBody, type, timestamp, id);
+    super(body, format, formattedBody, type);
     this.url = url;
     this.durationMs = durationMs == null ? 0L : durationMs;
     this.size = size == null ? 0L : size;
@@ -63,11 +61,9 @@ public class MessageAudio extends Message {
     public Builder durationMs(long ms) { this.durationMs = ms; return this; }
     public Builder size(long size) { this.size = size; return this; }
     public Builder mimeType(String mimeType) { this.mimeType = mimeType; return this; }
-    @Override public Builder body(String body) { super.body(body); return this; }
-    @Override public Builder format(String format) { super.format(format); return this; }
-    @Override public Builder formattedBody(String formattedBody) { super.formattedBody(formattedBody); return this; }
-    @Override public Builder timestamp(long timestamp) { super.timestamp(timestamp); return this; }
-    @Override public Builder id(long id) { super.id(id); return this; }
+    @Override public Builder body(String body) { this.body = body; return this; }
+    @Override public Builder format(String format) { this.format = format; return this; }
+    @Override public Builder formattedBody(String formattedBody) { this.formattedBody = formattedBody; return this; }
     @Override public MessageAudio build() { return new MessageAudio(this); }
   }
 }

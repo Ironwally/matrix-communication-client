@@ -2,11 +2,9 @@ package com.cosium.matrix_communication_client;
 
 import static java.util.Objects.requireNonNull;
 
-import com.cosium.matrix_communication_client.media.AttachmentConfig;
 import com.cosium.matrix_communication_client.message.Message;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
@@ -23,6 +21,7 @@ public class MatrixApi {
   private final HttpClient httpClient;
   private final JsonHandlers jsonHandlers;
   private final MatrixUri baseUri;
+  private final MatrixUri mediaUri;
   private final AccessTokenFactory accessTokenFactory;
 
   private MatrixApi(
@@ -33,6 +32,7 @@ public class MatrixApi {
     httpClient = httpClientFactory.build();
     this.jsonHandlers = requireNonNull(jsonHandlers);
     baseUri = uris.fetchBaseUri(httpClient, jsonHandlers);
+    mediaUri = baseUri.withPathSegments("_matrix", "media", "v3");
     this.accessTokenFactory = requireNonNull(accessTokenFactory);
   }
 
@@ -73,52 +73,6 @@ public class MatrixApi {
     }
   }
 
-  /**
-   * Upload an attachment to the Matrix media API and send it as an m.image event to a room.
-   */
-  public CreatedEvent sendImageAttachmentToRoom(
-      String roomId,
-      String filename,
-      String contentType,
-      byte[] data,
-      AttachmentConfig config) {
-
-    String mxcUri = uploadMedia(filename, contentType, data).contentUri();
-
-    // Choose caption if provided, otherwise fall back to filename
-    String captionBody = Optional.ofNullable(config)
-        .map(AttachmentConfig::getCaption)
-        .filter(c -> !c.isBlank())
-        .orElse(filename);
-
-    Message message = Message.builder().image(captionBody, mxcUri).build();
-    return sendMessageToRoom(message, roomId);
-  }
-
-  /** Upload an attachment to the Matrix media API and send it as an m.image event to a room. */
-  public CreatedEvent sendImageAttachmentToRoom(
-      String roomId,
-      String filename,
-      String contentType,
-      java.nio.file.Path file,
-      AttachmentConfig config) {
-    final HttpRequest.BodyPublisher bodyPublisher;
-    try {
-      bodyPublisher = BodyPublishers.ofFile(file);
-    } catch (java.io.FileNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-    String mxcUri = uploadMedia(filename, contentType, bodyPublisher).contentUri();
-
-    String body = Optional.ofNullable(config)
-        .map(AttachmentConfig::getCaption)
-        .filter(c -> !c.isBlank())
-        .orElse(filename);
-
-    Message message = Message.builder().image(body, mxcUri).build();
-    return sendMessageToRoom(message, roomId);
-  }
-
   // --- helpers
 
   public UploadMediaEvent uploadMedia(String filename, String contentType, byte[] data) {
@@ -128,7 +82,7 @@ public class MatrixApi {
   public UploadMediaEvent uploadMedia(String filename, String contentType, HttpRequest.BodyPublisher body) {
     HttpRequest request =
         HttpRequest.newBuilder()
-            .uri(mediaBaseUri()
+            .uri(mediaUri
                 .addPathSegments("upload")
                 .addQueryParameter("filename", filename)
                 .toUri())
@@ -167,7 +121,7 @@ public class MatrixApi {
 
     String mediaId = rawPath.startsWith("/") ? rawPath.substring(1) : rawPath;
 
-    MatrixUri downloadUri = mediaBaseUri().addPathSegments("download", serverName);
+    MatrixUri downloadUri = mediaUri.addPathSegments("download", serverName);
     for (String segment : mediaId.split("/")) {
       if (!segment.isBlank()) {
         downloadUri = downloadUri.addPathSegments(segment);
@@ -192,15 +146,7 @@ public class MatrixApi {
     }
   }
 
-  private MatrixUri mediaBaseUri() {
-    URI u = baseUri.toUri();
-    try {
-      return new MatrixUri(
-          new URI(u.getScheme(), u.getUserInfo(), u.getHost(), u.getPort(), "/_matrix/media/v3", null, null));
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
-  }
+
 
   public CreateRoomOutput createRoom(CreateRoomInput input) {
     HttpRequest request =

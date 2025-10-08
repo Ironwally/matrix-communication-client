@@ -1,10 +1,12 @@
 package com.cosium.matrix_communication_client.media;
 
+import static java.util.Objects.requireNonNull;
+
+import com.cosium.matrix_communication_client.Lazy;
 import com.cosium.matrix_communication_client.MatrixApi;
 import java.io.File;
 import java.nio.file.Files;
 import java.time.Duration;
-import java.util.Objects;
 
 /** Handle to perform media-related operations on the client */
 public class Media implements MediaResource {
@@ -14,40 +16,37 @@ public class Media implements MediaResource {
     private static final Duration MIN_UPLOAD_REQUEST_TIMEOUT = Duration.ofMinutes(5);
 
     // Client for use to send requests
-    public MatrixApi client;
+    public Lazy<MatrixApi> api;
     /**
      * Media is automatically created by Client.
      * It gets an internal copy of it to use for any requests.
      */
-    public Media(MatrixApi client) {
-        this.client = Objects.requireNonNull(client);
+    public Media(Lazy<MatrixApi> api) {
+        this.api = requireNonNull(api);
     }
 
     @Override
-    public String upload(File file, AttachmentConfig config) {
-        Objects.requireNonNull(file);
-        Objects.requireNonNull(config);
-        String contentType = config.getContentType();
-        if (contentType.isEmpty()) { contentType = "application/octet-stream"; }
+    public String upload(File file, String filename, String contentType) {
+        requireNonNull(file);
+        requireNonNull(filename);
 
         byte[] data;
         try {
-            data = Files.readAllBytes(file.toPath());
+          data = Files.readAllBytes(file.toPath());
         } catch (java.io.IOException e) {
-            throw new RuntimeException("Failed to read file " + file.getAbsolutePath(), e);
+          throw new RuntimeException("Failed to read file " + file.getAbsolutePath(), e);
         }
-
-    return client.uploadMedia(
-        file.getName(),
-        contentType,
-        data
+        return api.get().uploadMedia(
+          filename,
+          contentType,
+          data
     ).contentUri();
     }
 
     @Override
     public byte[] download(String mxcUri) {
-        Objects.requireNonNull(mxcUri);
-        return client.downloadMedia(mxcUri);
+        requireNonNull(mxcUri);
+        return api.get().downloadMedia(mxcUri);
     }
 }
 
