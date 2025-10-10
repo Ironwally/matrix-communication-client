@@ -4,78 +4,91 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** Matrix m.image message
- * If the filename is present, and its value is different than body, then body is considered to be a caption,
- * otherwise body is a filename. format and formatted_body are only used for captions.
-*/
+ * <a
+ * href="https://spec.matrix.org/latest/client-server-api/#mimage">https://spec.matrix.org/latest/client-server-api/#mimage</a>
+ */
 public class MessageImage extends Message {
 
-  private final String filename; // original filename
+  private final String originalFilename;
   private final String url; // mxc:// URI
   private final ImageInfo info;
 
-  protected MessageImage(Builder builder) {
+  protected MessageImage(final Builder builder) {
     super(builder);
-    this.filename = builder.filename;
+    this.originalFilename = builder.originalFilename;
     this.url = builder.url;
     this.info = builder.info;
   }
 
-  @SuppressWarnings("unused") // Constructor needed for JsonObject for sending message to homeserver
+  @SuppressWarnings("unused") // Needed for JSON serialization
   @JsonCreator
   MessageImage(
-      @JsonProperty("body") String body,
-      @JsonProperty("format") String format,
-      @JsonProperty("formatted_body") String formattedBody,
-      @JsonProperty("type") String type,
-      @JsonProperty("filename") String filename,
-      @JsonProperty("url") String url,
-      @JsonProperty("info") ImageInfo info) {
+      @JsonProperty("body") final String body,
+      @JsonProperty("format") final String format,
+      @JsonProperty("formatted_body") final String formattedBody,
+      @JsonProperty("type") final String type,
+      @JsonProperty("filename") final String originalFilename,
+      @JsonProperty("url") final String url,
+      @JsonProperty("info") final ImageInfo info) {
     super(body, format, formattedBody, type);
-    this.filename = filename;
+    this.originalFilename = originalFilename;
     this.url = url;
     this.info = info;
   }
 
-  @JsonProperty("filename") public String filename() { return filename; }
+  @JsonProperty("filename") public String filename() { return originalFilename; }
   @JsonProperty("url") public String url() { return url; }
   @JsonProperty("info") public ImageInfo info() { return info; }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public static final class Builder extends Message.Builder {
 
-    private String filename;
+    private String originalFilename;
     private String url;
     private ImageInfo info;
 
-    Builder(Message.Builder base) {
-      super(base);
+    private Builder() {
+      super();
       this.type = "m.image";
       this.info = null;
+      this.body = null;
     }
 
-    @Override public Builder body(String body) { this.body = body; return this; }
-    @Override public Builder format(String format) { this.format = format; return this; }
-    @Override public Builder formattedBody(String formattedBody) { this.formattedBody = formattedBody; return this; }
+    @Override public Builder body(final String body) { this.body = body; return this; }
+    @Override public Builder format(final String format) { this.format = format; return this; }
+    @Override public Builder formattedBody(final String formattedBody) { this.formattedBody = formattedBody; return this; }
 
-    public Builder caption(String caption) { this.body = caption; return this; } // alias for body
-    public Builder url(String uri) { this.url = uri; return this; }
-    public Builder imageInfo(Integer height, String mimeType, Integer size, Integer width) { this.info = new ImageInfo(height, width, size, mimeType); return this; }
-    public Builder filename(String filename) { this.filename = filename; return this; }
+    public Builder caption(final String caption) { this.body = caption; return this; } // alias for body
+    public Builder url(final String uri) { this.url = uri; return this; }
+    public Builder imageInfo(final Integer height, final String mimeType, final Integer size, final Integer width) { this.info = new ImageInfo(height, width, size, mimeType); return this; }
+    public Builder originalFilename(final String originalFilename) { this.originalFilename = originalFilename; return this; }
 
-    @Override public MessageImage build() { return new MessageImage(this); }
+    @Override public MessageImage build() {
+      if (this.body == null) {
+        this.body = this.originalFilename;
+      }
+      return new MessageImage(this); }
   }
 
-  protected static class ImageInfo {
+  /** Metadata about the image referred to in {@code url}.
+   * <a
+   * href="https://spec.matrix.org/latest/client-server-api/#mimage">https://spec.matrix.org/latest/client-server-api/#mimage</a>
+  */
+  private static class ImageInfo {
     private final Integer h;
     private final String mimeType;
-    private final Integer size;
+    private final Integer size;  // Size in bytes
     private final Integer w;
 
     @JsonCreator
     public ImageInfo(
-      @JsonProperty("h") Integer h,
-      @JsonProperty("w") Integer w,
-      @JsonProperty("size") Integer size,
-      @JsonProperty("mimetype") String mimeType) {
+      @JsonProperty("h") final Integer h,
+      @JsonProperty("w") final Integer w,
+      @JsonProperty("size") final Integer size,
+      @JsonProperty("mimetype") final String mimeType) {
       if (h == null || w == null || size == null || mimeType == null) {
         throw new IllegalArgumentException("Attribute missing");
       }

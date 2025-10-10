@@ -19,21 +19,21 @@ class NewMatrixResources implements MatrixResources {
   private final Lazy<MediaResource> media;
 
   public NewMatrixResources(
-      boolean https,
-      String hostname,
-      Integer port,
-      Duration connectTimeout,
-      AccessTokenFactoryFactory accessTokenFactoryFactory) {
+      final boolean https,
+      final String hostname,
+      final Integer port,
+      final Duration connectTimeout,
+      final AccessTokenFactoryFactory accessTokenFactoryFactory) {
     objectMapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    MatrixUris matrixUris = new MatrixUris(https, new MatrixHostname(hostname), port);
-    JsonHandlers jsonHandlers = new JsonHandlers(objectMapper);
-    HttpClientFactory httpClientFactory = new HttpClientFactory(connectTimeout);
+    final MatrixUris matrixUris = new MatrixUris(https, new MatrixHostname(hostname), port);
+    final JsonHandlers jsonHandlers = new JsonHandlers(objectMapper);
+    final HttpClientFactory httpClientFactory = new HttpClientFactory(connectTimeout);
     accessTokenFactory =
         accessTokenFactoryFactory.build(httpClientFactory, jsonHandlers, matrixUris);
     api =
         Lazy.of(
             () -> MatrixApi.load(httpClientFactory, jsonHandlers, matrixUris, accessTokenFactory));
-  media = Lazy.of(() -> new Media(api.get()));
+  media = Lazy.of(() -> new Media(api));
   }
 
   @Override

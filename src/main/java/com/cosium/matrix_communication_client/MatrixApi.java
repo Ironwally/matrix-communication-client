@@ -25,10 +25,10 @@ public class MatrixApi {
   private final AccessTokenFactory accessTokenFactory;
 
   private MatrixApi(
-      HttpClientFactory httpClientFactory,
-      JsonHandlers jsonHandlers,
-      MatrixUris uris,
-      AccessTokenFactory accessTokenFactory) {
+      final HttpClientFactory httpClientFactory,
+      final JsonHandlers jsonHandlers,
+      final MatrixUris uris,
+      final AccessTokenFactory accessTokenFactory) {
     httpClient = httpClientFactory.build();
     this.jsonHandlers = requireNonNull(jsonHandlers);
     baseUri = uris.fetchBaseUri(httpClient, jsonHandlers);
@@ -37,16 +37,16 @@ public class MatrixApi {
   }
 
   public static MatrixApi load(
-      HttpClientFactory httpClientFactory,
-      JsonHandlers jsonHandlers,
-      MatrixUris uris,
-      AccessTokenFactory accessTokenFactory) {
+      final HttpClientFactory httpClientFactory,
+      final JsonHandlers jsonHandlers,
+      final MatrixUris uris,
+      final AccessTokenFactory accessTokenFactory) {
     return new MatrixApi(httpClientFactory, jsonHandlers, uris, accessTokenFactory);
   }
 
-  public CreatedEvent sendMessageToRoom(Message input, String roomId) {
+  public CreatedEvent sendMessageToRoom(final Message input, final String roomId) {
 
-    HttpRequest request =
+    final HttpRequest request =
         HttpRequest.newBuilder()
             .uri(
                 baseUri
@@ -65,9 +65,9 @@ public class MatrixApi {
           .body()
           .get()
           .parse();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
     }
@@ -75,12 +75,12 @@ public class MatrixApi {
 
   // --- helpers
 
-  public UploadMediaEvent uploadMedia(String filename, String contentType, byte[] data) {
+  public UploadMediaEvent uploadMedia(final String filename, final String contentType, final byte[] data) {
     return uploadMedia(filename, contentType, BodyPublishers.ofByteArray(data));
   }
 
-  public UploadMediaEvent uploadMedia(String filename, String contentType, HttpRequest.BodyPublisher body) {
-    HttpRequest request =
+  public UploadMediaEvent uploadMedia(final String filename, final String contentType, final HttpRequest.BodyPublisher body) {
+    final HttpRequest request =
         HttpRequest.newBuilder()
             .uri(mediaUri
                 .addPathSegments("upload")
@@ -97,38 +97,38 @@ public class MatrixApi {
           .body()
           .get()
           .parse();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
     }
   }
 
-  public byte[] downloadMedia(String mxcUri) {
-    URI uri = URI.create(mxcUri);
+  public byte[] downloadMedia(final String mxcUri) {
+    final URI uri = URI.create(mxcUri);
     if (!"mxc".equalsIgnoreCase(uri.getScheme())) {
       throw new IllegalArgumentException("URI must use the mxc scheme");
     }
 
-    String serverName = Optional.ofNullable(uri.getHost())
+    final String serverName = Optional.ofNullable(uri.getHost())
         .filter(host -> !host.isBlank())
         .orElseThrow(() -> new IllegalArgumentException("mxc URI must contain a server name"));
 
-    String rawPath = Optional.ofNullable(uri.getPath())
+    final String rawPath = Optional.ofNullable(uri.getPath())
         .filter(path -> !path.isBlank())
         .orElseThrow(() -> new IllegalArgumentException("mxc URI must contain a media identifier"));
 
-    String mediaId = rawPath.startsWith("/") ? rawPath.substring(1) : rawPath;
+    final String mediaId = rawPath.startsWith("/") ? rawPath.substring(1) : rawPath;
 
     MatrixUri downloadUri = mediaUri.addPathSegments("download", serverName);
-    for (String segment : mediaId.split("/")) {
+    for (final String segment : mediaId.split("/")) {
       if (!segment.isBlank()) {
         downloadUri = downloadUri.addPathSegments(segment);
       }
     }
 
-    HttpRequest request =
+    final HttpRequest request =
         HttpRequest.newBuilder()
             .uri(downloadUri.toUri())
             .header("Authorization", String.format("Bearer %s", accessTokenFactory.build()))
@@ -138,9 +138,9 @@ public class MatrixApi {
 
     try {
       return httpClient.send(request, BodyHandlers.ofByteArray()).body();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
     }
@@ -148,8 +148,8 @@ public class MatrixApi {
 
 
 
-  public CreateRoomOutput createRoom(CreateRoomInput input) {
-    HttpRequest request =
+  public CreateRoomOutput createRoom(final CreateRoomInput input) {
+    final HttpRequest request =
         HttpRequest.newBuilder()
             .uri(baseUri.addPathSegments("createRoom").toUri())
             .header("Authorization", String.format("Bearer %s", accessTokenFactory.build()))
@@ -164,16 +164,16 @@ public class MatrixApi {
           .body()
           .get()
           .parse();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
     }
   }
 
-  public RawClientEvent fetchEvent(String roomId, String eventId) {
-    HttpRequest request =
+  public RawClientEvent fetchEvent(final String roomId, final String eventId) {
+    final HttpRequest request =
         HttpRequest.newBuilder()
             .uri(baseUri.addPathSegments("rooms", roomId, "event", eventId).toUri())
             .header("Authorization", String.format("Bearer %s", accessTokenFactory.build()))
@@ -187,9 +187,9 @@ public class MatrixApi {
           .body()
           .get()
           .parse();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
     }
@@ -199,8 +199,8 @@ public class MatrixApi {
    * Matrix Spec Link: https://github.com/element-hq/synapse/blob/develop/docs/admin_api/rooms.md#Room-messages-api
    */
   public RawClientEventPage fetchMessagePage(
-      String roomId, String dir, String from, String limit, String to) {
-    URI uri =
+      final String roomId, final String dir, final String from, final String limit, final String to) {
+    final URI uri =
         baseUri
             .addPathSegments("rooms", roomId, "messages")
             .addQueryParameter("dir", dir)
@@ -208,7 +208,7 @@ public class MatrixApi {
             .addQueryParameter("limit", limit)
             .addQueryParameter("to", to)
             .toUri();
-    HttpRequest request =
+    final HttpRequest request =
         HttpRequest.newBuilder()
             .uri(uri)
             .header("Authorization", String.format("Bearer %s", accessTokenFactory.build()))
@@ -222,9 +222,9 @@ public class MatrixApi {
           .body()
           .get()
           .parse();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
     }

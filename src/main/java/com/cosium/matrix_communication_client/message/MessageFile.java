@@ -4,58 +4,92 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** Matrix m.file message
- * If the filename is present, and its value is different than body, then body is considered to be a caption,
- * otherwise body is a filename. format and formatted_body are only used for captions.
+ * <a
+ * href="https://spec.matrix.org/latest/client-server-api/#mfile">https://spec.matrix.org/latest/client-server-api/#mfile</a>
 */
 public class MessageFile extends Message {
-  private final String url;
-  private final long size;
-  private final String mimeType;
+  private final String originalFilename;
+  private final String url; // mxc:// URI
+  private final FileInfo info;
 
-  protected MessageFile(Builder builder) {
+  protected MessageFile(final Builder builder) {
     super(builder);
+    this.originalFilename = builder.originalFilename;
     this.url = builder.url;
-    this.size = builder.size;
-    this.mimeType = builder.mimeType;
+    this.info = builder.info;
   }
 
-  @SuppressWarnings("unused") // Constructor needed for JsonObject for sending message to homeserver // Constructor needed for JsonObject for sending message to homeserver
+  @SuppressWarnings("unused") // Needed for JSON serialization
   @JsonCreator
   MessageFile(
-      @JsonProperty("body") String body,
-      @JsonProperty("format") String format,
-      @JsonProperty("formatted_body") String formattedBody,
-      @JsonProperty("msgtype") String type,
-      @JsonProperty("url") String url,
-      @JsonProperty("size") Long size,
-      @JsonProperty("mimeType") String mimeType) {
+      @JsonProperty("body") final String body,
+      @JsonProperty("format") final String format,
+      @JsonProperty("formatted_body") final String formattedBody,
+      @JsonProperty("msgtype") final String type,
+      @JsonProperty("filename") final String originalFilename,
+      @JsonProperty("url") final String url,
+      @JsonProperty("info") final FileInfo info) {
     super(body, format, formattedBody, type);
+    this.originalFilename = originalFilename;
     this.url = url;
-    this.size = size == null ? 0L : size;
-    this.mimeType = mimeType;
+    this.info = info;
   }
 
+  @JsonProperty("filename") public String filename() { return originalFilename; }
   @JsonProperty("url") public String url() { return url; }
-  @JsonProperty("size") public long size() { return size; }
-  @JsonProperty("mimeType") public String mimeType() { return mimeType; }
+  @JsonProperty("info") public FileInfo info() { return info; }
+
+  public static Builder builder() {
+    return new Builder();
+  }
 
   public static final class Builder extends Message.Builder {
+    private String originalFilename;
     private String url;
-    private long size;
-    private String mimeType;
+    private FileInfo info;
 
-    public Builder(Message.Builder base) {
-      super(base);
+    public Builder() {
+      super();
       this.type = "m.file";
-      this.size = 0L;
+      this.info = null;
+      this.body = null;
     }
 
-    public Builder url(String url) { this.url = url; return this; }
-    public Builder size(long size) { this.size = size; return this; }
-    public Builder mimeType(String mimeType) { this.mimeType = mimeType; return this; }
-    @Override public Builder body(String body) { this.body = body; return this; }
-    @Override public Builder format(String format) { this.format = format; return this; }
-    @Override public Builder formattedBody(String formattedBody) { this.formattedBody = formattedBody; return this; }
-    @Override public MessageFile build() { return new MessageFile(this); }
+    @Override public Builder body(final String body) { this.body = body; return this; }
+    @Override public Builder format(final String format) { this.format = format; return this; }
+    @Override public Builder formattedBody(final String formattedBody) { this.formattedBody = formattedBody; return this; }
+
+
+    public Builder caption(final String caption) { this.body = caption; return this; }
+    public Builder url(final String uri) { this.url = uri; return this; }
+    public Builder fileInfo(final String mimeType, final long size) { this.info = new FileInfo(mimeType, size); return this; }
+    public Builder originalFilename(final String originalFilename) { this.originalFilename = originalFilename; return this; }
+
+    @Override public MessageFile build() {
+      if (this.body == null) {
+        this.body = this.originalFilename;
+      }
+      return new MessageFile(this);
+    }
+  }
+
+  /** Information about the file referred to in {@code url}. */
+  protected static class FileInfo {
+    private final String mimeType;
+    private final long size; // Size in bytes
+
+    @JsonCreator
+    public FileInfo(
+      @JsonProperty("mimetype") final String mimeType,
+      @JsonProperty("size") final long size) {
+      if (size == 0 || mimeType == null) {
+        throw new IllegalArgumentException("Attribute missing");
+      }
+      this.mimeType = mimeType;
+      this.size = size;
+    }
+
+    @JsonProperty("size") public long size() { return size; }
+    @JsonProperty("mimetype") public String mimeType() { return mimeType; }
   }
 }

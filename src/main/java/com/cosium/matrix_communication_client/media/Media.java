@@ -21,19 +21,20 @@ public class Media implements MediaResource {
      * Media is automatically created by Client.
      * It gets an internal copy of it to use for any requests.
      */
-    public Media(Lazy<MatrixApi> api) {
+    public Media(final Lazy<MatrixApi> api) {
         this.api = requireNonNull(api);
     }
 
     @Override
-    public String upload(File file, String filename, String contentType) {
+    public String upload(final File file, final String filename, final String contentType) {
         requireNonNull(file);
         requireNonNull(filename);
+        requireNonNull(contentType);
 
         byte[] data;
         try {
           data = Files.readAllBytes(file.toPath());
-        } catch (java.io.IOException e) {
+        } catch (final java.io.IOException e) {
           throw new RuntimeException("Failed to read file " + file.getAbsolutePath(), e);
         }
         return api.get().uploadMedia(
@@ -44,7 +45,7 @@ public class Media implements MediaResource {
     }
 
     @Override
-    public byte[] download(String mxcUri) {
+    public byte[] download(final String mxcUri) {
         requireNonNull(mxcUri);
         return api.get().downloadMedia(mxcUri);
     }

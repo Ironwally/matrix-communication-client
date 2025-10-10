@@ -14,7 +14,7 @@ public class Message {
   protected final String formattedBody;
   protected final String type;
 
-  protected Message(Builder builder) {
+  protected Message(final Builder builder) {
     body = builder.body;
     format = builder.format;
     formattedBody = builder.formattedBody;
@@ -24,10 +24,10 @@ public class Message {
   @SuppressWarnings("unused") // Constructor needed for JsonObject creation
   @JsonCreator
   Message(
-      @JsonProperty("body") String body,
-      @JsonProperty("format") String format,
-      @JsonProperty("formatted_body") String formattedBody,
-      @JsonProperty("msgtype") String type) {
+      @JsonProperty("body") final String body,
+      @JsonProperty("format") final String format,
+      @JsonProperty("formatted_body") final String formattedBody,
+      @JsonProperty("msgtype") final String type) {
     this.body = body;
     this.format = format;
     this.formattedBody = formattedBody;
@@ -44,35 +44,21 @@ public class Message {
     return new Builder();
   }
 
-  public static class Builder {
+  protected static class Builder {
     protected String body;
     protected String format;
     protected String formattedBody;
     protected String type;
 
-    private Builder() {
+    protected Builder() {
       format = "org.matrix.custom.html";
       type = "undefined";
     }
 
-    // constructor for extended classes
-    protected Builder(Builder base) {
-      this.format = base.format;
-      this.type = base.type;
-    }
-
-    public Builder body(String body) { this.body = body; return this; }
-    public Builder format(String format) { this.format = format; return this; }
-    public Builder formattedBody(String formattedBody) { this.formattedBody = formattedBody; return this; }
-    public Builder type(String type) { this.type = type; return this; }
+    public Builder body(final String body) { this.body = body; return this; }
+    public Builder format(final String format) { this.format = format; return this; }
+    public Builder formattedBody(final String formattedBody) { this.formattedBody = formattedBody; return this; }
+    public Builder type(final String type) { this.type = type; return this; }
     public Message build() { return new Message(this); }
-
-    // New methods. First decide which type of message
-    public MessageText.Builder text(String content) { return new MessageText.Builder(this).body(content).formattedBody("<b>"+content+"</b>"); }
-    public MessageImage.Builder image() { return new MessageImage.Builder(this); }
-    public MessageFile.Builder file(String content, String url) { return new MessageFile.Builder(this).body(content).formattedBody("<b>"+content+"</b>").url(url); }
-    public MessageAudio.Builder audio(String content, String url) { return new MessageAudio.Builder(this).body(content).formattedBody("<b>"+content+"</b>").url(url); }
-    public MessageEmote.Builder sticker(String content) { return new MessageEmote.Builder(this).body(content).formattedBody("<b>"+content+"</b>"); }
-    public MessagePoll.Builder poll(String question, String[] answers) { return new MessagePoll.Builder(this).question(question).answers(answers); }
-  }
+}
 }
