@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.tuple;
 
 import com.cosium.matrix_communication_client.media.MediaResource;
 import com.cosium.matrix_communication_client.message.Message;
+import com.cosium.matrix_communication_client.message.MessageAudio;
+import com.cosium.matrix_communication_client.message.MessageEmote;
 import com.cosium.matrix_communication_client.message.MessageFile;
 import com.cosium.matrix_communication_client.message.MessageImage;
 import com.cosium.matrix_communication_client.message.MessageText;
@@ -30,14 +32,33 @@ public class MessageTest {
 
     private static final Duration EVENT_TIMEOUT = Duration.ofSeconds(10);
     private static final Duration EVENT_POLL_INTERVAL = Duration.ofMillis(200);
+
     private MatrixResources resources;
+    private String testUUID;
 
   @Test
   @DisplayName("Send MessageText to a room")
   void sendMessageText() {
-      final RoomResource room = createRoom();
-      final String messageText = "MessageTest text";
+      final RoomResource room = createRoom("sendMessageText");
+      final String messageText = "Cat\n (=^･ω･^=)";
       final MessageText message = MessageText.builder()
+          .text(messageText)
+          .build();
+      final ClientEventResource event = room.sendMessage(message);
+      final Message fetchedMessage = event.fetch().content(Message.class);
+
+      assertThat(List.of(fetchedMessage))
+        .extracting(Message::body, Message::format, Message::formattedBody, Message::type)
+        .containsExactly(
+            tuple(message.body(), message.format(), message.formattedBody(), message.type()));
+  }
+
+  @Test
+  @DisplayName("Send MessageEmote to a room")
+  void sendMessageEmote() {
+      final RoomResource room = createRoom("sendMessageEmote");
+      final String messageText = "Cat\n (=^･ω･^=)";
+      final MessageEmote message = MessageEmote.builder()
           .text(messageText)
           .build();
       final ClientEventResource event = room.sendMessage(message);
@@ -52,7 +73,7 @@ public class MessageTest {
   @Test
   @DisplayName("Send MessageImage to a room")
   void sendMessageImage() {
-      final RoomResource room = createRoom();
+      final RoomResource room = createRoom("sendMessageImage");
       final File imageFile = new File("src/test/resources/cat.jpg");
       byte[] imageBytes;
       try {
@@ -79,7 +100,7 @@ public class MessageTest {
   @Test
   @DisplayName("Send MessageFile to a room")
   void sendMessageFile() {
-      final RoomResource room = createRoom();
+      final RoomResource room = createRoom("sendMessageFile");
       final MediaResource media = resources.media();
 
       final File file = new File("src/test/resources/cat.pdf");
@@ -109,10 +130,38 @@ public class MessageTest {
         });
   }
 
+  @Test
+  @DisplayName("Send MessageAudio to a room")
+  void sendMessageAudio() {
+      final RoomResource room = createRoom("sendMessageAudio");
+      final MediaResource media = resources.media();
+      final File file = new File("src/test/resources/cat.mp3");
+      final String mimeType = MediaTypeFactory.getMediaType(file.getName()).orElse(MediaType.APPLICATION_OCTET_STREAM).toString();
+      final String contentUri = media.upload(file, "cat.mp3", mimeType);
+      final String messageText = "Caption of cat audio attachment";
+      final MessageAudio message = MessageAudio.builder()
+          .caption(messageText)
+          .url(contentUri)
+          .originalFilename("cat.mp3")
+          .audioInfo(600, mimeType, file.length())
+          .build();
 
+      room.sendMessage(message);
 
-
-
+      final ClientEventPage eventpage = room.fetchEventPage("b", null, 10L, null);
+      eventpage.chunk()
+        .stream()
+        .filter(clientEvent -> "m.room.message".equals(clientEvent.type()))
+        .filter(clientEvent -> "m.audio".equals(clientEvent.type()))
+        .map(clientEvent -> clientEvent.content(MessageAudio.class))
+        .forEach(fetchedMessage -> {
+            System.out.println(fetchedMessage);
+            assertThat(List.of(fetchedMessage))
+                .extracting(MessageAudio::body, MessageAudio::format, MessageAudio::formattedBody, MessageAudio::type, MessageAudio::url, MessageAudio::filename, MessageAudio::info)
+                .containsExactly(
+                    tuple(message.body(), message.format(), message.formattedBody(), message.type(), message.url(), message.filename(), message.info()));
+        });
+  }
 
   // --- HELPERS --- //
 
@@ -134,13 +183,14 @@ public class MessageTest {
                 .defaultPort()
                 .usernamePassword("admin", "magentaerenfarve")
                 .build();
+        testUUID = UUID.randomUUID().toString();
   }
 
-    private RoomResource createRoom() {
+    private RoomResource createRoom(final String name) {
         final CreateRoomInput createRoomInput = CreateRoomInput.builder()
-                .name(MessageTest.class.getSimpleName() + UUID.randomUUID().toString())
-                .roomAliasName(MessageTest.class.getSimpleName() + UUID.randomUUID().toString())
-                .topic(MessageTest.class.getSimpleName() + UUID.randomUUID().toString())
+                .name(name + testUUID)
+                .roomAliasName(name + testUUID)
+                .topic(name + "\n" + MessageTest.class.getSimpleName() + testUUID)
                 .build();
           return resources.rooms().create(createRoomInput);
     }

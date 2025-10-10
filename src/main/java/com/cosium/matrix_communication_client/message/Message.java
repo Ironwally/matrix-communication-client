@@ -6,6 +6,7 @@ import java.util.Objects;
 
 /**
  * @author Réda Housni Alaoui
+ * @see <a href="https://spec.matrix.org/latest/client-server-api/#mroommessage">m.room.message Matrix Spec</a>
  */
 public class Message {
 
@@ -59,6 +60,9 @@ public class Message {
     public Builder format(final String format) { this.format = format; return this; }
     public Builder formattedBody(final String formattedBody) { this.formattedBody = formattedBody; return this; }
     public Builder type(final String type) { this.type = type; return this; }
-    public Message build() { return new Message(this); }
+
+    public Message build() {
+      return new Message(this);
+    }
 }
 }

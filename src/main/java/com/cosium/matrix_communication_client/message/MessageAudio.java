@@ -3,67 +3,95 @@ package com.cosium.matrix_communication_client.message;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/** Matrix m.audio message
- * If the filename is present, and its value is different than body, then body is considered to be a caption,
- * otherwise body is a filename. format and formatted_body are only used for captions.
+/** Matrix m.file message
+ * @see <a href="https://spec.matrix.org/latest/client-server-api/#maudio">m.audio Matrix Spec</a>
 */
 public class MessageAudio extends Message {
-  private final String url;
-  private final long durationMs;
-  private final long size;
-  private final String mimeType;
+  private final String originalFilename;
+  private final String url; // mxc:// URI
+  private final AudioInfo info;
 
   protected MessageAudio(final Builder builder) {
     super(builder);
+    this.originalFilename = builder.originalFilename;
     this.url = builder.url;
-    this.durationMs = builder.durationMs;
-    this.size = builder.size;
-    this.mimeType = builder.mimeType;
+    this.info = builder.info;
   }
 
-  @SuppressWarnings("unused") // Constructor needed for JsonObject for sending message to homeserver // Constructor needed for JsonObject for sending message to homeserver
+  @SuppressWarnings("unused") // Needed for JSON serialization
   @JsonCreator
   MessageAudio(
       @JsonProperty("body") final String body,
       @JsonProperty("format") final String format,
       @JsonProperty("formatted_body") final String formattedBody,
       @JsonProperty("msgtype") final String type,
+      @JsonProperty("filename") final String originalFilename,
       @JsonProperty("url") final String url,
-      @JsonProperty("durationMs") final Long durationMs,
-      @JsonProperty("size") final Long size,
-      @JsonProperty("mimeType") final String mimeType) {
+      @JsonProperty("info") final AudioInfo info) {
     super(body, format, formattedBody, type);
+    this.originalFilename = originalFilename;
     this.url = url;
-    this.durationMs = durationMs == null ? 0L : durationMs;
-    this.size = size == null ? 0L : size;
-    this.mimeType = mimeType;
+    this.info = info;
   }
 
+  @JsonProperty("filename") public String filename() { return originalFilename; }
   @JsonProperty("url") public String url() { return url; }
-  @JsonProperty("durationMs") public long durationMs() { return durationMs; }
-  @JsonProperty("size") public long size() { return size; }
-  @JsonProperty("mimeType") public String mimeType() { return mimeType; }
+  @JsonProperty("info") public AudioInfo info() { return info; }
+
+  public static Builder builder() {
+    return new Builder();
+  }
 
   public static final class Builder extends Message.Builder {
+    private String originalFilename;
     private String url;
-    private long durationMs;
-    private long size;
-    private String mimeType;
+    private AudioInfo info;
 
     public Builder() {
       super();
       this.type = "m.audio";
-      this.size = 0L;
-      this.durationMs = 0L;
+      this.info = null;
+      this.body = null;
     }
-
-    public Builder url(final String url) { this.url = url; return this; }
-    public Builder durationMs(final long ms) { this.durationMs = ms; return this; }
-    public Builder size(final long size) { this.size = size; return this; }
-    public Builder mimeType(final String mimeType) { this.mimeType = mimeType; return this; }
+    // Must Override all methods otherwise returns Builder from Superclass
     @Override public Builder body(final String body) { this.body = body; return this; }
     @Override public Builder format(final String format) { this.format = format; return this; }
     @Override public Builder formattedBody(final String formattedBody) { this.formattedBody = formattedBody; return this; }
-    @Override public MessageAudio build() { return new MessageAudio(this); }
+
+    public Builder caption(final String caption) { this.body = caption; return this; }
+    public Builder url(final String uri) { this.url = uri; return this; }
+    public Builder audioInfo(final int duration, final String mimeType, final long size) { this.info = new AudioInfo(duration, mimeType, size); return this; }
+    public Builder originalFilename(final String originalFilename) { this.originalFilename = originalFilename; return this; }
+
+    @Override public MessageAudio build() {
+      if (this.body == null) {
+        this.body = this.originalFilename;
+      }
+      return new MessageAudio(this);
+    }
+  }
+
+  /** Metadata for the audio clip referred to in {@code url}. */
+  protected static class AudioInfo {
+    private final int duration; // Duration in milliseconds
+    private final String mimeType;
+    private final long size; // Size in bytes
+
+    @JsonCreator
+    public AudioInfo(
+      @JsonProperty("duration") final int duration,
+      @JsonProperty("mimetype") final String mimeType,
+      @JsonProperty("size") final long size) {
+      if (duration < 0 || mimeType == null || size == 0) {
+        throw new IllegalArgumentException("Attribute missing");
+      }
+      this.duration = duration;
+      this.mimeType = mimeType;
+      this.size = size;
+    }
+
+    @JsonProperty("duration") public int duration() { return duration; }
+    @JsonProperty("size") public long size() { return size; }
+    @JsonProperty("mimetype") public String mimeType() { return mimeType; }
   }
 }

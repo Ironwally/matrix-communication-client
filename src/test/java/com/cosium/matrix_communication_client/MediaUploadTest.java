@@ -3,7 +3,6 @@ package com.cosium.matrix_communication_client;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.cosium.matrix_communication_client.media.MediaResource;
-import com.cosium.matrix_communication_client.message.MessageImage;
 import com.cosium.matrix_communication_client.room.RoomResource;
 import com.cosium.synapse_junit_extension.EnableSynapse;
 import com.cosium.synapse_junit_extension.Synapse;
@@ -27,25 +26,6 @@ public class MediaUploadTest {
 
     private MatrixResources resources;
 
-    @BeforeEach
-    void beforeEach(final Synapse synapse) throws IOException {
-        resources = MatrixResources.factory()
-            .builder()
-            .https(synapse.https())
-            .hostname(synapse.hostname())
-            .port(synapse.port())
-            .usernamePassword(synapse.adminUsername(), synapse.adminPassword())
-            .build();
-         // Overriding resources with own running matrix server to see server logs
-        resources = MatrixResources.factory()
-                .builder()
-                .http()
-                .hostname("localhost")
-                .defaultPort()
-                .usernamePassword("admin", "magentaerenfarve")
-                .build();
-  }
-
   @Test
   @DisplayName("Upload an Image to the Media Repository")
   void uploadImage() {
@@ -61,31 +41,6 @@ public class MediaUploadTest {
       assertThat(contentUri).isNotBlank();
       final byte[] downloaded = resources.media().download(contentUri);
       assertThat(downloaded).isEqualTo(imageBytes);
-  }
-
-  @Test
-  @DisplayName("Upload and send an Image to a room")
-  void uploadAndSendImage() {
-      final RoomResource room = createRoom();
-      final File imageFile = new File("src/test/resources/cat.jpg");
-      byte[] imageBytes;
-      try {
-          imageBytes = Files.readAllBytes(imageFile.toPath());
-      } catch (final IOException e) {
-          throw new RuntimeException(e);
-      }
-      final String contentUri = resources.media().upload(imageFile, "cat.jpg", "image/jpeg");
-      final MessageImage message = MessageImage.builder()
-          .caption("my pretty cat")
-          .url(contentUri)
-          .originalFilename("cat.jpg")
-          .imageInfo(600, "image/jpeg", imageBytes.length, 800)
-          .build();
-      room.sendMessage(message);
-
-      final List<byte[]> downloaded = awaitDownloadedImages(room, 1);
-      assertThat(downloaded).hasSize(1);
-      assertThat(downloaded.get(0)).isEqualTo(imageBytes);
   }
 
   @Test
@@ -157,6 +112,25 @@ public class MediaUploadTest {
             .map(mediaResource::download)
             .toList();
     }
+
+    @BeforeEach
+    void beforeEach(final Synapse synapse) throws IOException {
+        resources = MatrixResources.factory()
+            .builder()
+            .https(synapse.https())
+            .hostname(synapse.hostname())
+            .port(synapse.port())
+            .usernamePassword(synapse.adminUsername(), synapse.adminPassword())
+            .build();
+         // Overriding resources with own running matrix server to see server logs
+        resources = MatrixResources.factory()
+                .builder()
+                .http()
+                .hostname("localhost")
+                .defaultPort()
+                .usernamePassword("admin", "magentaerenfarve")
+                .build();
+  }
 
     private void sleep(final Duration duration) {
         try {

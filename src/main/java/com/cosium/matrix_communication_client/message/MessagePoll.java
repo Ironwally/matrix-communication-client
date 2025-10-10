@@ -43,13 +43,18 @@ public class MessagePoll extends Message {
       this.type = "m.poll";
     }
 
+    // Must Override all methods otherwise returns Builder from Superclass
+    @Override public Builder body(final String body) { this.body = body; return this; }
+    @Override public Builder format(final String format) { this.format = format; return this; }
+    @Override public Builder formattedBody(final String formattedBody) { this.formattedBody = formattedBody; return this; }
+
     public Builder hidden() { this.hidden = true; return this; }
     public Builder open() { this.hidden = false; return this; }
     public Builder question(final String question) { this.question = question; return this; }
     public Builder answers(final String[] answers) { this.answers = List.of(answers); return this; }
-    @Override public Builder body(final String body) { this.body = body; return this; }
-    @Override public Builder format(final String format) { this.format = format; return this; }
-    @Override public Builder formattedBody(final String formattedBody) { this.formattedBody = formattedBody; return this; }
-    @Override public MessagePoll build() { return new MessagePoll(this); }
+
+    @Override public MessagePoll build() {
+      return new MessagePoll(this);
+    }
   }
 }

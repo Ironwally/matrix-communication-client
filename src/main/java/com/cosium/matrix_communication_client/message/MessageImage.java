@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** Matrix m.image message
- * <a
- * href="https://spec.matrix.org/latest/client-server-api/#mimage">https://spec.matrix.org/latest/client-server-api/#mimage</a>
+ * @see <ahref="https://spec.matrix.org/latest/client-server-api/#mimage">m.image Matrix Spec</a>
  */
 public class MessageImage extends Message {
 
@@ -57,6 +56,7 @@ public class MessageImage extends Message {
       this.body = null;
     }
 
+    // Must Override all methods otherwise returns Builder from Superclass
     @Override public Builder body(final String body) { this.body = body; return this; }
     @Override public Builder format(final String format) { this.format = format; return this; }
     @Override public Builder formattedBody(final String formattedBody) { this.formattedBody = formattedBody; return this; }

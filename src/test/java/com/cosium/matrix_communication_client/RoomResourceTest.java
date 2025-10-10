@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.cosium.matrix_communication_client.message.Message;
+import com.cosium.matrix_communication_client.message.MessageText;
 import com.cosium.matrix_communication_client.room.RoomResource;
 import com.cosium.synapse_junit_extension.EnableSynapse;
 import com.cosium.synapse_junit_extension.Synapse;
@@ -51,7 +52,7 @@ class RoomResourceTest {
   @Test
   @DisplayName("Send message to room")
   void test2() {
-    Message message = Message.builder().text("body").build();
+    MessageText message = MessageText.Builder().text("body").build();
     Message fetchedMessage = createRoom().sendMessage(message).fetch().content(Message.class);
 
     assertThat(List.of(fetchedMessage))
@@ -63,7 +64,7 @@ class RoomResourceTest {
   @Test
   @DisplayName("Fetch event page")
   void test3() {
-    Message message = Message.builder().text("body").build();
+    MessageText message = MessageText.Builder().text("Fetch event page test").build();
     RoomResource room = createRoom();
     room.sendMessage(message);
 

@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** Matrix m.file message
- * <a
- * href="https://spec.matrix.org/latest/client-server-api/#mfile">https://spec.matrix.org/latest/client-server-api/#mfile</a>
+ * @see <a href="https://spec.matrix.org/latest/client-server-api/#mfile">m.file Matrix Spec</a>
 */
 public class MessageFile extends Message {
   private final String originalFilename;
@@ -55,10 +54,10 @@ public class MessageFile extends Message {
       this.body = null;
     }
 
+    // Must Override all methods otherwise returns Builder from Superclass
     @Override public Builder body(final String body) { this.body = body; return this; }
     @Override public Builder format(final String format) { this.format = format; return this; }
     @Override public Builder formattedBody(final String formattedBody) { this.formattedBody = formattedBody; return this; }
-
 
     public Builder caption(final String caption) { this.body = caption; return this; }
     public Builder url(final String uri) { this.url = uri; return this; }
