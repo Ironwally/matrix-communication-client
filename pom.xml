@@ -78,6 +78,13 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Video metadata extraction for tests -->
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>2.19.0</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Only for MIME type right now -->
         <dependency>
             <groupId>org.springframework</groupId>

@@ -10,9 +10,15 @@ import com.cosium.matrix_communication_client.message.MessageEmote;
 import com.cosium.matrix_communication_client.message.MessageFile;
 import com.cosium.matrix_communication_client.message.MessageImage;
 import com.cosium.matrix_communication_client.message.MessageText;
+import com.cosium.matrix_communication_client.message.MessageVideo;
 import com.cosium.matrix_communication_client.room.RoomResource;
 import com.cosium.synapse_junit_extension.EnableSynapse;
 import com.cosium.synapse_junit_extension.Synapse;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.mp4.Mp4Directory;
+import com.drew.metadata.mp4.media.Mp4VideoDirectory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,13 +59,14 @@ public class MessageTest {
             tuple(message.body(), message.format(), message.formattedBody(), message.type()));
   }
 
+  // TODO: Figure out how to use emotes
   @Test
   @DisplayName("Send MessageEmote to a room")
   void sendMessageEmote() {
       final RoomResource room = createRoom("sendMessageEmote");
-      final String messageText = "Cat\n (=^･ω･^=)";
+      final String action = "tableflip";
       final MessageEmote message = MessageEmote.builder()
-          .text(messageText)
+          .action(action)
           .build();
       final ClientEventResource event = room.sendMessage(message);
       final Message fetchedMessage = event.fetch().content(Message.class);
@@ -81,7 +88,6 @@ public class MessageTest {
       } catch (final IOException e) {
           throw new RuntimeException(e);
       }
-
       final String mimeType = MediaTypeFactory.getMediaType(imageFile.getName()).orElse(MediaType.APPLICATION_OCTET_STREAM).toString();
       final String contentUri = resources.media().upload(imageFile, "cat.jpg", mimeType);
       final Message message = MessageImage.builder()
@@ -102,9 +108,7 @@ public class MessageTest {
   void sendMessageFile() {
       final RoomResource room = createRoom("sendMessageFile");
       final MediaResource media = resources.media();
-
       final File file = new File("src/test/resources/cat.pdf");
-
       final String mimeType = MediaTypeFactory.getMediaType(file.getName()).orElse(MediaType.APPLICATION_OCTET_STREAM).toString();
       final String contentUri = media.upload(file, "cat.pdf", mimeType);
       final String messageText = "Caption of cat file attachment";
@@ -163,6 +167,42 @@ public class MessageTest {
         });
   }
 
+  @Test
+  @DisplayName("Send MessageVideo to a room")
+  void sendMessageVideo() {
+      final RoomResource room = createRoom("sendMessageVideo");
+      final MediaResource media = resources.media();
+      final File file = new File("src/test/resources/cat.mp4");
+      final String mimeType = MediaTypeFactory.getMediaType(file.getName()).orElse(MediaType.APPLICATION_OCTET_STREAM).toString();
+      final String contentUri = media.upload(file, "cat.mp4", mimeType);
+      final String messageText = "Caption of cat video attachment";
+      // Extract duration (ms), height, and width from the MP4 using helper
+      final VideoMeta meta = readVideoMeta(file);
+      final MessageVideo message = MessageVideo.builder()
+          .caption(messageText)
+          .url(contentUri)
+          .originalFilename("cat.mp4")
+          .videoInfo(meta.durationMs(), meta.height(), mimeType,
+              (int) Math.min(Integer.MAX_VALUE, Math.max(0L, file.length())), meta.width())
+          .build();
+
+      room.sendMessage(message);
+
+      final ClientEventPage eventpage = room.fetchEventPage("b", null, 10L, null);
+      eventpage.chunk()
+        .stream()
+        .filter(clientEvent -> "m.room.message".equals(clientEvent.type()))
+        .filter(clientEvent -> "m.video".equals(clientEvent.type()))
+        .map(clientEvent -> clientEvent.content(MessageVideo.class))
+        .forEach(fetchedMessage -> {
+            System.out.println(fetchedMessage);
+            assertThat(List.of(fetchedMessage))
+                .extracting(MessageVideo::body, MessageVideo::format, MessageVideo::formattedBody, MessageVideo::type, MessageVideo::url, MessageVideo::filename, MessageVideo::info)
+                .containsExactly(
+                    tuple(message.body(), message.format(), message.formattedBody(), message.type(), message.url(), message.filename(), message.info()));
+        });
+  }
+
   // --- HELPERS --- //
 
     @BeforeEach
@@ -195,9 +235,10 @@ public class MessageTest {
           return resources.rooms().create(createRoomInput);
     }
 
+    @SuppressWarnings("unchecked")
     private List<byte[]> awaitDownloadedImages(final RoomResource room, final int expectedCount) {
         final Instant deadline = Instant.now().plus(EVENT_TIMEOUT);
-        List<Map<String, Object>> contents = List.of();
+    List<Map<String, Object>> contents = List.of();
         do {
             contents = room.fetchEventPage("b", null, 10L, null)
                 .chunk()
@@ -232,4 +273,24 @@ public class MessageTest {
             throw new IllegalStateException("Interrupted while waiting for room events", e);
         }
     }
+
+    // --- Video metadata helper --- //
+    private static VideoMeta readVideoMeta(final File file) {
+        try {
+            Metadata md = ImageMetadataReader.readMetadata(file);
+            Mp4Directory mv = md.getFirstDirectoryOfType(Mp4Directory.class);
+            Mp4VideoDirectory vd = md.getFirstDirectoryOfType(Mp4VideoDirectory.class);
+            Double durSec = (mv != null) ? mv.getDoubleObject(Mp4Directory.TAG_DURATION) : null;
+            Integer wVal = (vd != null) ? vd.getInteger(Mp4VideoDirectory.TAG_WIDTH) : null;
+            Integer hVal = (vd != null) ? vd.getInteger(Mp4VideoDirectory.TAG_HEIGHT) : null;
+            int durationMs = durSec != null ? (int) Math.round(durSec * 1000.0) : 0;
+            int width = wVal != null ? wVal : 0;
+            int height = hVal != null ? hVal : 0;
+            return new VideoMeta(durationMs, width, height);
+        } catch (IOException | ImageProcessingException e) {
+            throw new RuntimeException("Failed to read MP4 metadata for videoInfo", e);
+        }
+    }
+
+    private record VideoMeta(int durationMs, int width, int height) {}
 }
