@@ -6,62 +6,22 @@
 
 A [Matrix](https://matrix.org/) java client.
 
-# Example
+# Usage
+You can find usage examples in src/test
 
-```java
-public class Example {
+# Developement
 
-  public static void main(String[] args) {
-    MatrixResources matrix =
-        MatrixResources.factory()
-            .builder()
-            .https()
-            .hostname("matrix.example.org")
-            .defaultPort()
-            .usernamePassword("jdoe", "secret")
-            .build();
+## Planned project restructure
+The project has become very closely coupled. Modules are not finely separated and MatrixApi acts as a central "god" class for api related operations
 
-    RoomResource room = matrix
-        .rooms()
-        .create(
-            CreateRoomInput.builder()
-                .name("Science")
-                .roomAliasName("science")
-                .topic("Anything about science")
-                .build());
-	
-    room.sendMessage(Message.builder().text("Hello !").build());
-  }
-}
-```
-
-Another example with existing room:
-
-```java
-public class Example {
-
-  public static void main(String[] args) {
-    MatrixResources matrix =
-        MatrixResources.factory()
-            .builder()
-            .https()
-            .hostname("matrix.example.org")
-            .defaultPort()
-            .usernamePassword("jdoe", "secret")
-            .build();
-
-    RoomResource room = matrix
-        .rooms()
-        .byId("!PVvauSmjcHLwoAJkyT:matrix.example.org");
-	
-    room.sendMessage(Message.builder().text("Hello !").build());
-  }
-}
-```
+**Goals**
+- Decompose project into several small modules
+- Clear separation of modules with DTOs for intermodule communication
+- Separate Objects and Json representation (via DTOs?)
 
 # Dependency
 
-Local only currently. 
+Local maven dependency only currently.
 See [Local publish 3.](#local-publish-3) on how to include.
 
 # Publishing
@@ -69,7 +29,7 @@ See [Local publish 3.](#local-publish-3) on how to include.
 1. Version:
 - ongoing developement: keep `x.y.z-SNAPSHOT`
 - For release version: remove `-SNAPSHOT` -> `x.y.z`
-- After release: bump to next snapshot: add `-SNAPSHOT` 
+- After release: bump to next snapshot: add `-SNAPSHOT`
   - Version bumping Scheme:
     - (Patch release) x.y.*z+*: backward-compatible fixes: bugs/security/performance/reliability/stability/misleading API behavior/doc corrections that prevent user errors
     - (Minor release) x.*y+*.z: backward-compatible features or deprecations
