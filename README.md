@@ -18,6 +18,7 @@ The project has become very closely coupled. Modules are not finely separated an
 - Decompose project into several small modules
 - Clear separation of modules with DTOs for intermodule communication
 - Separate Objects and Json representation (via DTOs?)
+- Remove duplicate interface implementations
 
 # Dependency
 
