@@ -34,6 +34,7 @@ class RoomResourceTest {
             .usernamePassword(synapse.adminUsername(), synapse.adminPassword())
             .build();
     // Overriding resources with own running matrix server to see server logs
+    /*
     resources = MatrixResources.factory()
                 .builder()
                 .http()
@@ -41,6 +42,7 @@ class RoomResourceTest {
                 .defaultPort()
                 .usernamePassword("admin", "magentaerenfarve")
                 .build();
+                */
   }
 
   @Test
