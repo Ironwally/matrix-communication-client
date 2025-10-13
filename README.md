@@ -11,6 +11,9 @@ You can find usage examples in src/test
 
 # Developement
 
+## Current Problems
+- Too open classes. Needs complete restructure to fix longterm
+
 ## Planned project restructure
 The project has become very closely coupled. Modules are not finely separated and MatrixApi acts as a central "god" class for api related operations
 
