@@ -52,7 +52,7 @@ class RoomResourceTest {
   @Test
   @DisplayName("Send message to room")
   void test2() {
-    MessageText message = MessageText.Builder().text("body").build();
+    MessageText message = MessageText.builder().text("body").build();
     Message fetchedMessage = createRoom().sendMessage(message).fetch().content(Message.class);
 
     assertThat(List.of(fetchedMessage))
@@ -64,7 +64,7 @@ class RoomResourceTest {
   @Test
   @DisplayName("Fetch event page")
   void test3() {
-    MessageText message = MessageText.Builder().text("Fetch event page test").build();
+    MessageText message = MessageText.builder().text("Fetch event page test").build();
     RoomResource room = createRoom();
     room.sendMessage(message);
 
