@@ -10,7 +10,7 @@ A [Matrix](https://matrix.org/) java client.
 You can find usage examples in src/test
 
 # Documentation
-- Project Specification:
+- C4 Model of Project using excalidraw: [Software Architecture](./project-structure-documentation/Software%20Architecture.md)
 - Matrix Specification and API: https://spec.matrix.org/v1.16/client-server-api/
   - Client Authentication (Legacy) API: https://spec.matrix.org/v1.16/client-server-api/
   - Messages API: https://spec.matrix.org/v1.16/client-server-api/#instant-messaging
