@@ -279,15 +279,15 @@ public class MessageTest {
     // --- Video metadata helper --- //
     private static VideoMeta readVideoMeta(final File file) {
         try {
-            Metadata md = ImageMetadataReader.readMetadata(file);
-            Mp4Directory mv = md.getFirstDirectoryOfType(Mp4Directory.class);
-            Mp4VideoDirectory vd = md.getFirstDirectoryOfType(Mp4VideoDirectory.class);
-            Double durSec = (mv != null) ? mv.getDoubleObject(Mp4Directory.TAG_DURATION) : null;
-            Integer wVal = (vd != null) ? vd.getInteger(Mp4VideoDirectory.TAG_WIDTH) : null;
-            Integer hVal = (vd != null) ? vd.getInteger(Mp4VideoDirectory.TAG_HEIGHT) : null;
-            int durationMs = durSec != null ? (int) Math.round(durSec * 1000.0) : 0;
-            int width = wVal != null ? wVal : 0;
-            int height = hVal != null ? hVal : 0;
+            final Metadata md = ImageMetadataReader.readMetadata(file);
+            final Mp4Directory mv = md.getFirstDirectoryOfType(Mp4Directory.class);
+            final Mp4VideoDirectory vd = md.getFirstDirectoryOfType(Mp4VideoDirectory.class);
+            final Double durSec = (mv != null) ? mv.getDoubleObject(Mp4Directory.TAG_DURATION) : null;
+            final Integer wVal = (vd != null) ? vd.getInteger(Mp4VideoDirectory.TAG_WIDTH) : null;
+            final Integer hVal = (vd != null) ? vd.getInteger(Mp4VideoDirectory.TAG_HEIGHT) : null;
+            final int durationMs = durSec != null ? (int) Math.round(durSec * 1000.0) : 0;
+            final int width = wVal != null ? wVal : 0;
+            final int height = hVal != null ? hVal : 0;
             return new VideoMeta(durationMs, width, height);
         } catch (IOException | ImageProcessingException e) {
             throw new RuntimeException("Failed to read MP4 metadata for videoInfo", e);

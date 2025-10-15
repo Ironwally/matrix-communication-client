@@ -9,6 +9,13 @@ A [Matrix](https://matrix.org/) java client.
 # Usage
 You can find usage examples in src/test
 
+# Documentation
+- Project Specification:
+- Matrix Specification and API: https://spec.matrix.org/v1.16/client-server-api/
+  - Client Authentication (Legacy) API: https://spec.matrix.org/v1.16/client-server-api/
+  - Messages API: https://spec.matrix.org/v1.16/client-server-api/#instant-messaging
+- Synapse Homeserver Specification and API: https://element-hq.github.io/synapse/latest/welcome_and_overview.html
+
 # Developement
 
 ## Current Problems
@@ -22,6 +29,19 @@ The project has become very closely coupled. Modules are not finely separated an
 - Clear separation of modules with DTOs for intermodule communication
 - Separate Objects and Json representation (via DTOs?)
 - Remove duplicate interface implementations
+
+## Further additions
+- Room delete
+- Room join
+- Room add user
+
+- User:
+- User Register: https://spec.matrix.org/v1.16/client-server-api/#post_matrixclientv3register
+  - oder via commandline: https://element-hq.github.io/synapse/latest/setup/installation.html?highlight=user#registering-a-user
+- User change Password: https://spec.matrix.org/v1.16/client-server-api/#post_matrixclientv3accountpassword
+  - or via synapse admin api: https://element-hq.github.io/synapse/latest/admin_api/user_admin_api.html?highlight=password#reset-password
+- User deactivate: https://spec.matrix.org/v1.16/client-server-api/#post_matrixclientv3accountdeactivate
+-
 
 # Dependency
 
